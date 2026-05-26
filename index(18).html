@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Prumo — Soluções em Automação Fiscal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <style>
+    :root {
+      --navy-900: #0a192f;
+      --gray-900: #111827;
+      --gray-700: #374151;
+      --gray-500: #6b7280;
+      --gray-200: #e5e7eb;
+      --white: #fff;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --grad-accent: linear-gradient(45deg, #f97316, #fb923c);
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --blue: #007bff;
+      --orange: #f97316;
+    }
+    /* Rolagem suave */
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: var(--gray-700);
+      overflow-x: hidden;
+    }
+    
+    /* Transições gerais */
+    * {
+      transition: all 0.3s ease;
+    }
+    
+    /* Animações de entrada */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes fadeInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .fade-in-up {
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+    
+    .fade-in-left {
+      animation: fadeInLeft 0.8s ease-out forwards;
+    }
+    
+    .fade-in-right {
+      animation: fadeInRight 0.8s ease-out forwards;
+    }
+    
+    .stagger-delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .stagger-delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .stagger-delay-3 { animation-delay: 0.3s; opacity: 0; }
+    .stagger-delay-4 { animation-delay: 0.4s; opacity: 0; }
+    .stagger-delay-5 { animation-delay: 0.5s; opacity: 0; }
+    .stagger-delay-6 { animation-delay: 0.6s; opacity: 0; }
+    
+    /* Menu */
+    header {
+      background: rgb(255, 255, 255);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gray-200);
+      position: sticky; 
+      top: 0; 
+      z-index: 50;
+      animation: fadeInUp 0.8s ease-out;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+    }
+    .logo { 
+      display: flex; 
+      gap: 0.01px; 
+      align-items: center;
+      text-decoration: none; 
+      font-weight: 900;
+      color: var(--navy-900);
+    }
+    .logo-icon {
+      width: 80px;
+      height: 80px;
+      display: block;
+      background: none !important;
+      border-radius: 0;
+      object-fit: contain;
+      margin-right: 0px;
+    }
+    nav ul {
+      display: flex; 
+      gap: 24px; 
+      list-style: none; 
+      margin: 0; 
+      padding: 0;
+    }
+    nav a {
+      text-decoration: none; 
+      font-weight: 600; 
+      font-size: 0.95rem; 
+      color: var(--gray-700); 
+      position: relative;
+      transition: color 0.3s ease, transform 0.2s ease;
+    }
+    nav a:hover {
+      color: var(--orange);
+      transform: translateY(-2px);
+    }
+    nav a.active::after {
+      content: ""; 
+      position: absolute; 
+      left: 0; 
+      right: 0; 
+      bottom: -6px;
+      height: 2px; 
+      background: var(--grad-accent);
+    }
+    .cta-btn {
+      padding: 10px 14px; 
+      border-radius: 12px;
+      background: var(--grad-accent); 
+      color: var(--white);
+      font-weight: 800; 
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(249, 115, 22, 0.4);
+    }
+    /* Estilos do ícone de hambúrguer */
+    .hamburger {
+      display: none;
+      font-size: 1.5rem;
+      color: var(--gray-700);
+      cursor: pointer;
+      padding: 10px;
+      transition: transform 0.3s ease;
+    }
+    /* Estilos do menu expansivo no mobile */
+    nav ul {
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    /* Hero */
+    .hero {
+      background: var(--navy-900);
+      color: var(--white);
+      padding: 90px 0 120px;
+    }
+    .grid {
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 40px; 
+      align-items: start;
+    }
+    h1 {
+      font-size: clamp(2.3rem, 6vw, 4rem);
+      font-weight: 900; 
+      margin-bottom: 16px;
+    }
+    h1 span {
+      background: var(--grad-accent);
+      background-clip: text;    
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .lead {
+      font-size: 1.2rem; 
+      margin-bottom: 24px; 
+      line-height: 1.6;
+    }
+    .btns {
+      display: flex; 
+      gap: 12px; 
+      flex-wrap: wrap;
+    }
+    .btn-primary, .btn-ghost {
+      padding: 14px 18px; 
+      border-radius: 14px; 
+      font-weight: 800;
+      text-decoration: none; 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 10px;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background: #fff; 
+      color: var(--navy-900);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px); 
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .btn-ghost {
+      border: 1px solid rgba(255,255,255,.35); 
+      color: #fff;
+    }
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.1); 
+      transform: translateY(-2px);
+    }
+    /* Painel branco com aspecto 3D animado */
+    .console {
+      background: var(--white);
+      color: var(--gray-900);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow:
+        0 25px 50px rgba(0,0,0,0.35),
+        inset -10px 0 25px rgba(0,0,0,0.15);
+      transform-style: preserve-3d;
+      transform: perspective(1000px) rotateY(-10deg) rotateX(6deg);
+      opacity: 0;
+      animation: painel3d 1.2s ease-out forwards;
+    }
+    @keyframes painel3d {
+      0% {
+        transform: perspective(1000px) translate(120px, 80px) scale(0.85) rotateY(-25deg) rotateX(12deg);
+        opacity: 0;
+      }
+      60% {
+        transform: perspective(1000px) translate(-10px, -10px) scale(1.05) rotateY(-12deg) rotateX(5deg);
+        opacity: 1;
+      }
+      100% {
+        transform: perspective(1000px) translate(0, 0) scale(1) rotateY(-8deg) rotateX(4deg);
+        opacity: 1;
+      }
+    }
+    .bar {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      margin-bottom: 16px;
+      font-weight: 800; 
+      font-size: 1rem;
+      border-bottom: 2px solid var(--gray-200);
+      padding-bottom: 8px;
+    }
+    .bar .chip {
+      background: var(--gray-200); 
+      color: var(--gray-700);
+      font-size: 0.8rem; 
+      padding: 6px 10px; 
+      border-radius: 999px;
+      display: flex; 
+      align-items: center; 
+      gap: 6px;
+    }
+    .rows {
+      display: grid; 
+      grid-template-columns: 100px 1fr auto; 
+      gap: 10px;
+    }
+    .row {
+      display: contents;
+    }
+    .cell {
+      padding: 10px 0; 
+      border-top: 1px solid var(--gray-200); 
+      font-size: 0.9rem;
+    }
+    .time {
+      font-family: monospace; 
+      color: var(--gray-500);
+    }
+    .badge {
+      font-size: 0.75rem; 
+      font-weight: 700; 
+      padding: 6px 10px; 
+      border-radius: 999px;
+    }
+    .ok {
+      background: rgba(16,185,129,0.2); 
+      color: var(--green);
+    }
+    .warn {
+      background: rgba(245,158,11,0.2); 
+      color: var(--yellow);
+    }
+    .err {
+      background: rgba(239,68,68,0.2); 
+      color: var(--red);
+    }
+    /* Seção de Recursos */
+    .features {
+      padding: 100px 0;
+      background: #f8fafc;
+    }
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 60px;
+    }
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 16px;
+      color: var(--grad-accent);
+    }
+    .section-header p {
+      font-size: 1.1rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .feature-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s ease;
+    }
+    .feature-card:hover::before {
+      left: 100%;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: var(--grad-accent);
+      display: grid;
+      place-items: center;
+      margin-bottom: 20px;
+      color: var(--white);
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+    .feature-card:hover .feature-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+    .feature-card h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--navy-900);
+    }
+    .feature-card p {
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+    /* Seção de Casos de Sucesso */
+    .testimonials {
+      padding: 100px 0;
+      background: var(--navy-900);
+      color: var(--white);
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .testimonial-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .testimonial-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    .testimonial-card:hover::before {
+      left: 100%;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+    .testimonial-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .testimonial-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--grad-accent);
+      margin-right: 15px;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      font-weight: bold;
+      transition: transform 0.3s ease;
+    }
+    .testimonial-card:hover .testimonial-avatar {
+      transform: scale(1.1);
+    }
+    .testimonial-info h4 {
+      margin: 0 0 5px;
+      font-size: 1.1rem;
+    }
+    .testimonial-info p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .testimonial-text {
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .rating {
+      color: var(--yellow);
+      margin-top: 15px;
+    }
+    /* Seção de Planos - RESTAURADA */
+    .pricing {
+      padding: 100px 0;
+      background: #f8fafc;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+    .pricing-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 40px 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      text-align: center;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+    .pricing-card:hover {
+      transform: translateY(-5px);
+    }
+    .pricing-card.featured {
+      border: 2px solid;
+      border-image: var(--grad-accent) 1;
+    }
+    .pricing-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--grad-accent);
+      color: var(--white);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .pricing-card h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--navy-900);
+    }
+    .price {
+      font-size: 3rem;
+      font-weight: 900;
+      margin: 20px 0;
+      color: var(--navy-900);
+    }
+    .price span {
+      font-size: 1rem;
+      color: var(--gray-500);
+    }
+    .pricing-features {
+      list-style: none;
+      padding: 0;
+      margin: 30px 0;
+      text-align: left;
+    }
+    .pricing-features li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+    }
+    .pricing-features li i {
+      color: var(--green);
+      margin-right: 10px;
+    }
+    .pricing-btn {
+      display: block;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: var(--grad-accent);
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 800;
+      transition: transform 0.2s ease;
+    }
+    .pricing-btn:hover {
+      transform: translateY(-2px);
+    }
+    /* Seção de CTA Final */
+    .final-cta {
+      padding: 100px 0;
+      background: var(--navy-900);
+      color: var(--white);
+      text-align: center;
+    }
+    .final-cta h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+    }
+    .final-cta p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.8);
+    }
+    /* Footer */
+    footer {
+      background: var(--gray-900);
+      color: var(--gray-200);
+      padding: 60px 0 30px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-col h4 {
+      color: var(--white);
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+    .footer-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .footer-col ul li {
+      margin-bottom: 10px;
+    }
+    .footer-col ul li a {
+      color: var(--gray-200);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .footer-col ul li a:hover {
+      color: var(--white);
+    }
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .social-links a {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      text-decoration: none;
+      transition: background 0.2s ease, transform 0.3s ease;
+    }
+    .social-links a:hover {
+      background: var(--grad-accent);
+      transform: translateY(-3px);
+    }
+    .copyright {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: var(--gray-500);
+      font-size: 0.9rem;
+    }
+    /* Estilos do Banner de Cookies */
+    .cookie-banner {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+      color: #ffffff;
+      padding: 18px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: auto;
+      max-width: 90%;
+      display: none;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cookie-banner.show {
+      display: flex;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .cookie-banner p {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.4;
+      flex: 1;
+      white-space: normal;
+    }
+    .cookie-banner a {
+      color: #f97316;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .cookie-banner a:hover {
+      text-decoration: underline;
+    }
+    .cookie-actions {
+      display: flex;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+    .cookie-banner button {
+      background-color: #f97316;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      white-space: nowrap;
+    }
+    .cookie-banner button:hover {
+      background-color: #e55f00;
+      transform: translateY(-2px);
+    }
+    .cookie-banner button:active {
+      transform: translateY(0);
+    }
+    .cookie-banner .btn-configure {
+      background-color: transparent;
+      border: 1px solid #ffffff;
+      color: #ffffff;
+    }
+    .cookie-banner .btn-configure:hover {
+      background-color: rgba(255,255,255,0.1);
+      border-color: #f97316;
+      color: #f97316;
+    }
+    /* Modal de Configuração de Cookies */
+    .cookie-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1001;
+      align-items: center;
+      justify-content: center;
+    }
+    .cookie-modal.show {
+      display: flex;
+    }
+    .cookie-modal-content {
+      background: var(--white);
+      color: var(--gray-900);
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .cookie-modal-content h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 15px;
+    }
+    .cookie-modal-content p {
+      font-size: 0.9rem;
+      color: var(--gray-500);
+      margin-bottom: 20px;
+    }
+    .cookie-option {
+      margin-bottom: 15px;
+    }
+    .cookie-option label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .cookie-option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+    }
+    .cookie-modal-content .btn-save, .cookie-modal-content .btn-back {
+      background: var(--grad-accent);
+      color: var(--white);
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      margin-right: 10px;
+    }
+    .cookie-modal-content .btn-back {
+      background: transparent;
+      border: 1px solid var(--gray-500);
+      color: var(--gray-500);
+    }
+    .cookie-modal-content .btn-save:hover, .cookie-modal-content .btn-back:hover {
+      transform: translateY(-2px);
+    }
+    /* Modal de Política de Cookies */
+    .cookie-policy-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1001;
+      align-items: center;
+      justify-content: center;
+    }
+    .cookie-policy-modal.show {
+      display: flex;
+    }
+    .cookie-policy-modal-content {
+      background: var(--white);
+      color: var(--gray-900);
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .cookie-policy-modal-content h2 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--grad-accent);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .cookie-policy-modal-content h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin: 20px 0 10px;
+    }
+    .cookie-policy-modal-content p, .cookie-policy-modal-content ul li {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--gray-700);
+      margin-bottom: 15px;
+    }
+    .cookie-policy-modal-content ul {
+      padding-left: 20px;
+      margin-bottom: 15px;
+    }
+    .cookie-policy-modal-content a {
+      color: #f97316;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .cookie-policy-modal-content a:hover {
+      text-decoration: underline;
+    }
+    .cookie-policy-modal-content .btn-policy-back {
+      background: transparent;
+      border: 1px solid var(--gray-500);
+      color: var(--gray-500);
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      display: block;
+      margin: 20px auto 0;
+    }
+    .cookie-policy-modal-content .btn-policy-back:hover {
+      transform: translateY(-2px);
+    }
+    /* Botão flutuante do WhatsApp */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10000;
+      background-color: var(--blue);
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: blink 2s infinite, pulse 1.5s infinite;
+      text-decoration: none !important;
+    }
+    .whatsapp-float:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+    .whatsapp-float i {
+      font-size: 2rem;
+    }
+    @keyframes blink {
+      0% { background-color: var(--blue); }
+      50% { background-color: var(--orange); }
+      100% { background-color: var(--blue); }
+    }
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
+      }
+    }
+    /* Responsividade aprimorada */
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .nav {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        height: auto;
+        padding: 10px 0;
+      }
+      .logo {
+        margin-bottom: 0;
+      }
+      .logo-icon {
+        width: 50px;
+        height: 50px;
+      }
+      .hamburger {
+        display: block;
+      }
+      nav ul {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        position: absolute;
+        top: 68px;
+        left: 0;
+        right: 0;
+        background: rgb(255, 255, 255);
+        padding: 20px 0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        z-index: 49;
+        transform: translateY(-10px);
+        opacity: 0;
+      }
+      nav ul.show {
+        display: flex;
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .cta-btn {
+        margin: 10px auto;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+      .hero {
+        padding: 40px 0 60px;
+      }
+      .console {
+        display: none;
+      }
+      .bar {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .rows {
+        display: block;
+      }
+      .row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-top: 1px solid var(--gray-200);
+      }
+      .cell {
+        padding: 0;
+        border-top: none;
+        font-size: 0.9rem;
+      }
+      .time {
+        flex: 0 0 70px;
+        font-size: 0.9rem;
+      }
+      .row .cell:nth-child(2) {
+        flex: 1;
+      }
+      .row .cell:nth-child(3) {
+        flex: 0 0 auto;
+      }
+      .features,
+      .testimonials,
+      .pricing,
+      .final-cta {
+        padding: 40px 0;
+      }
+      .features-grid,
+      .testimonials-grid,
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+      .feature-card,
+      .testimonial-card,
+      .pricing-card {
+        max-width: 100%;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .social-links {
+        justify-content: center;
+      }
+      .footer-col:not(:first-child) {
+        display: none;
+      }
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 0 15px;
+      }
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+      }
+      .hamburger {
+        font-size: 1.2rem;
+      }
+      nav ul {
+        padding: 15px 0;
+        gap: 10px;
+      }
+      .cta-btn {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+      }
+      .hero {
+        padding: 30px 0 50px;
+      }
+      h1 {
+        font-size: clamp(1.8rem, 5vw, 2.5rem);
+      }
+      .lead {
+        font-size: 1rem;
+      }
+      .console {
+        padding: 15px;
+        max-width: 95%;
+        opacity: 1;
+      }
+      .bar {
+        font-size: 0.9rem;
+      }
+      .time {
+        flex: 0 0 60px;
+        font-size: 0.8rem;
+      }
+      .cell {
+        font-size: 0.8rem;
+      }
+      .cookie-banner {
+        padding: 12px 15px;
+        bottom: 10px;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        max-width: 90%;
+        border-radius: 12px;
+      }
+      .cookie-banner p {
+        font-size: 0.9rem;
+        white-space: normal;
+        text-align: center;
+      }
+      .cookie-banner button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        width: auto;
+      }
+      .cookie-actions {
+        gap: 10px;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+      }
+      .cookie-modal-content {
+        padding: 12px;
+        max-width: 90%;
+      }
+      .cookie-policy-modal-content {
+        padding: 15px;
+        max-height: 85vh;
+      }
+      .cookie-policy-modal-content h2 {
+        font-size: 1.6rem;
+      }
+      .cookie-policy-modal-content h3 {
+        font-size: 1.1rem;
+      }
+      .cookie-policy-modal-content p,
+      .cookie-policy-modal-content ul li {
+        font-size: 0.85rem;
+      }
+      .section-header h2 {
+        font-size: 2rem;
+      }
+      .section-header p {
+        font-size: 1rem;
+      }
+      .feature-card,
+      .testimonial-card {
+        padding: 20px;
+      }
+      .feature-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+      .feature-card h3 {
+        font-size: 1.1rem;
+      }
+      .feature-card p {
+        font-size: 0.9rem;
+      }
+      .testimonial-avatar {
+        width: 40px;
+        height: 40px;
+      }
+      .testimonial-info h4 {
+        font-size: 1rem;
+      }
+      .testimonial-info p {
+        font-size: 0.8rem;
+      }
+      .testimonial-text {
+        font-size: 0.9rem;
+      }
+      .pricing-card {
+        padding: 30px 20px;
+      }
+      .price {
+        font-size: 2.5rem;
+      }
+      .pricing-features li {
+        font-size: 0.9rem;
+      }
+      .pricing-btn {
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+      .final-cta h2 {
+        font-size: 2rem;
+      }
+      .final-cta p {
+        font-size: 1rem;
+      }
+      .footer-col h4 {
+        font-size: 1rem;
+      }
+      .footer-col ul li a {
+        font-size: 0.9rem;
+      }
+      .copyright {
+        font-size: 0.8rem;
+      }
+      .whatsapp-float {
+        width: 50px;
+        height: 50px;
+      }
+      .whatsapp-float i {
+        font-size: 1.5rem;
+      }
+    }
+    /* Navbar fixa para telas maiores */
+    @media (min-width: 901px) {
+      .nav {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .hamburger {
+        display: none; /* Esconde o ícone de hambúrguer */
+      }
+      nav ul {
+        display: flex !important; /* Garante que os links estejam visíveis */
+        flex-direction: row;
+        position: static;
+        background: none;
+        box-shadow: none;
+        transform: none;
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('nav a');
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('nav ul');
+
+    // Lógica do menu hambúrguer
+    hamburger.addEventListener('click', () => {
+      navMenu.classList.toggle('show');
+      hamburger.classList.toggle('fa-bars');
+      hamburger.classList.toggle('fa-times');
+    });
+
+    // Fechar menu ao clicar em um link
+    navLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        navMenu.classList.remove('show');
+        hamburger.classList.add('fa-bars');
+        hamburger.classList.remove('fa-times');
+      });
+    });
+
+    // Cookie Banner Logic
+    const cookieBanner = document.getElementById('cookieBanner');
+    const cookieModal = document.getElementById('cookieModal');
+    const cookiePolicyModal = document.getElementById('cookiePolicyModal');
+    const acceptButton = document.querySelector('.cookie-banner .btn-accept');
+    const configureButton = document.querySelector('.cookie-banner .btn-configure');
+    const saveButton = document.querySelector('.cookie-modal-content .btn-save');
+    const backButton = document.querySelector('.cookie-modal-content .btn-back');
+    const policyBackButton = document.querySelector('.cookie-policy-modal-content .btn-policy-back');
+    const policyLinks = document.querySelectorAll('a[href="#cookie-policy"]');
+
+    function hideBanner() {
+      cookieBanner.style.opacity = '0';
+      setTimeout(() => {
+        cookieBanner.style.display = 'none';
+      }, 500);
+    }
+
+    function acceptCookies() {
+      localStorage.setItem('cookiesAccepted', 'all');
+      localStorage.setItem('cookiePreferences', JSON.stringify({
+        essential: true,
+        analytics: true,
+        marketing: true
+      }));
+      hideBanner();
+    }
+
+    function showCookieModal() {
+      cookieModal.classList.add('show');
+    }
+
+    function hideCookieModal() {
+      cookieModal.classList.remove('show');
+    }
+
+    function showCookiePolicyModal(e) {
+      e.preventDefault();
+      cookiePolicyModal.classList.add('show');
+    }
+
+    function hideCookiePolicyModal() {
+      cookiePolicyModal.classList.remove('show');
+    }
+
+    function saveCookiePreferences() {
+      const preferences = {
+        essential: true,
+        analytics: document.getElementById('analyticsCookies').checked,
+        marketing: document.getElementById('marketingCookies').checked
+      };
+      localStorage.setItem('cookiesAccepted', 'custom');
+      localStorage.setItem('cookiePreferences', JSON.stringify(preferences));
+      cookieModal.classList.remove('show');
+      hideBanner();
+    }
+
+    if (!localStorage.getItem('cookiesAccepted')) {
+      cookieBanner.style.display = 'flex';
+      setTimeout(() => {
+        cookieBanner.classList.add('show');
+      }, 100);
+    }
+
+    acceptButton.addEventListener('click', acceptCookies);
+    configureButton.addEventListener('click', showCookieModal);
+    saveButton.addEventListener('click', saveCookiePreferences);
+    backButton.addEventListener('click', hideCookieModal);
+    policyBackButton.addEventListener('click', hideCookiePolicyModal);
+    policyLinks.forEach(link => {
+      link.addEventListener('click', showCookiePolicyModal);
+    });
+
+    cookiePolicyModal.addEventListener('click', function(e) {
+      if (e.target === cookiePolicyModal) {
+        hideCookiePolicyModal();
+      }
+    });
+
+    // Tornar todos os cards clicáveis e direcionar para o WhatsApp
+    const featureCards = document.querySelectorAll('.feature-card');
+    const testimonialCards = document.querySelectorAll('.testimonial-card');
+    const pricingCards = document.querySelectorAll('.pricing-card');
+    
+    featureCards.forEach(card => {
+      card.addEventListener('click', function() {
+        const serviceName = this.querySelector('h3').textContent;
+        const message = `Olá, gostaria de saber mais sobre o serviço: ${serviceName}`;
+        const whatsappUrl = `https://wa.me/5585999533991?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+      });
+    });
+    
+    testimonialCards.forEach(card => {
+      card.addEventListener('click', function() {
+        const message = "Olá, gostaria de saber mais sobre as soluções do Prumo!";
+        const whatsappUrl = `https://wa.me/5585999533991?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+      });
+    });
+    
+    // Animação de entrada para elementos quando aparecem na tela
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Observar elementos com classes de animação
+    document.querySelectorAll('.fade-in-up, .fade-in-left, .fade-in-right').forEach(el => {
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+  });
+</script>
+<body>
+  <!-- Menu -->
+  <header>
+    <div class="container nav">
+      <a href="index.html" class="logo fade-in-up">
+        <img src="favicon.ico" alt="Prumo" class="logo-icon">
+        Prumo
+      </a>
+      <i class="fas fa-bars hamburger"></i>
+      <nav>
+        <ul>
+          <li><a class="active fade-in-up stagger-delay-1" href="#inicio">Início</a></li>
+          <li><a class="fade-in-up stagger-delay-2" href="#solucoes">Soluções</a></li>
+          <li><a class="fade-in-up stagger-delay-3" href="#depoimentos">Expertise</a></li>
+          <li><a class="fade-in-up stagger-delay-4" href="#contato">Contato</a></li>
+          <li><a class="fade-in-up stagger-delay-5" href="painel-contador.html">Painel do Contador</a></li>
+        </ul>
+      </nav>
+      <a href="https://client-ogdb.onrender.com/" class="cta-btn fade-in-up stagger-delay-6">Login</a>
+    </div>
+  </header>
+  <!-- Hero -->
+  <section id="inicio" class="hero">
+    <div class="container grid">
+      <div class="fade-in-left">
+        <h1 class="fade-in-up">Deixar <span>no Prumo</span> a sua Empresa</h1>
+        <p class="lead fade-in-up stagger-delay-1">Automações fiscais inteligentes que simplificam processos complexos e garantem conformidade com a legislação.</p>
+        <div class="btns">
+          <a href="#solucoes" class="btn-primary fade-in-up stagger-delay-2"><i class="fa-solid fa-bolt"></i> Ver Soluções</a>
+          <a href="https://wa.me/5585999533991?text=Olá,%20gostaria%20de%20agendar%20uma%20demonstração%20do%20Prumo." class="btn-ghost fade-in-up stagger-delay-3"><i class="fa-solid fa-calendar-check"></i> Agendar Demo</a>
+        </div>
+      </div>
+      <div class="console fade-in-right">
+        <div class="bar">
+          <span><i class="fa-solid fa-terminal"></i> Execuções recentes</span>
+          <span class="chip"><i class="fa-regular fa-clock"></i> Últimos 15 min</span>
+        </div>
+        <div class="rows">
+          <div class="row"><div class="cell time">09:41:12</div><div class="cell">NF-e/SC concluída</div><div class="cell"><span class="badge ok">SUCESSO</span></div></div>
+          <div class="row"><div class="cell time">09:38:04</div><div class="cell">Apuração ICMS — lote #4827</div><div class="cell"><span class="badge warn">ALERTA</span></div></div>
+          <div class="row"><div class="cell time">09:32:51</div><div class="cell">SPED Contribuições</div><div class="cell"><span class="badge ok">AGENDADO</span></div></div>
+          <div class="row"><div class="cell time">09:29:30</div><div class="cell">Integração ERP — token expirado</div><div class="cell"><span class="badge ok">RECUPERADO</span></div></div>
+          <div class="row"><div class="cell time">09:21:18</div><div class="cell">DARF — geração automática</div><div class="cell"><span class="badge ok">SUCESSO</span></div></div>
+          <div class="row"><div class="cell time">09:18:44</div><div class="cell">Webhook erro 500</div><div class="cell"><span class="badge err">FALHA</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Recursos -->
+  <section id="solucoes" class="features">
+    <div class="container">
+      <div class="section-header fade-in-up">
+        <h2>Soluções Completas para sua Empresa</h2>
+        <p>Tecnologia de ponta para simplificar a gestão fiscal e tributária, garantindo conformidade e eficiência.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card fade-in-up stagger-delay-1">
+          <div class="feature-icon">
+            <i class="fas fa-file-invoice-dollar"></i>
+          </div>
+          <h3>Encerramento ISS</h3>
+          <p>Encerramento; Salvamento das NFSe Prestadas e Tomadas; Emissão do Dam ISS Próprio e ISS Retido; Emissão Certificado Municipal; Varredura de Escriturações em Aberto; Consultar os municípios disponíveis.</p>
+        </div>
+        <div class="feature-card fade-in-up stagger-delay-2">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3>DT-E Consulta</h3>
+          <p>Consulta em tempo real de todas as empresas.</p>
+        </div>
+        <div class="feature-card fade-in-up stagger-delay-3">
+          <div class="feature-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <h3>Painel do Contador</h3>
+          <p>Gratuito; Consulta CNPJ; Consulta NCM; Consulta CEP; Consulta IBGE Municípios; Sistema para visualizar NFSe a partir de um XML .</p>
+        </div>
+        <div class="feature-card fade-in-up stagger-delay-4">
+          <div class="feature-icon">
+            <i class="fas fa-robot"></i>
+          </div>
+          <h3>Personalizado</h3>
+          <p>Soluções personalizadas para o seu escritório, a partir da sua demanda.</p>
+        </div>
+        <div class="feature-card fade-in-up stagger-delay-5">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3>Envio de E-mail em lote - Em Desenvolvimento</h3>
+          <p>Envio em massa de e-mails programados.</p>
+        </div>
+        <div class="feature-card fade-in-up stagger-delay-6">
+          <div class="feature-icon">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <h3>DCTFWEB Relatórios - Em Desenvolvimento </h3>
+          <p>Comparação dos valores de IRRF e INSS, além do salvamento dos relatórios e do DAM em lote.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Casos de Sucesso -->
+  <section id="depoimentos" class="testimonials">
+    <div class="container">
+      <div class="section-header fade-in-up">
+        <h2>O que Nossos Clientes Dizem</h2>
+        <p>Empresas de todos os portes confiam no Prumo para simplificar sua rotina fiscal.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card fade-in-up stagger-delay-1">
+          <div class="testimonial-header">
+            <div class="testimonial-avatar">RL</div>
+            <div class="testimonial-info">
+              <h4>Daniel Sales</h4>
+              <p>Diretor, Avançar Contadores</p>
+            </div>
+          </div>
+          <div class="testimonial-text">
+            "O Prumo revolucionou nosso departamento fiscal. Reduzimos 70% do tempo gasto com apuração de impostos e eliminamos completamente multas por atraso."
+          </div>
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+        <div class="testimonial-card fade-in-up stagger-delay-2">
+          <div class="testimonial-header">
+            <div class="testimonial-avatar">AS</div>
+            <div class="testimonial-info">
+              <h4>Sheila</h4>
+              <p>CEO, Contabilidade</p>
+            </div>
+          </div>
+          <div class="testimonial-text">
+            "A automação do Prumo nos permitiu escalar nossa operação sem aumentar a equipe fiscal. A integração com nosso ERP foi perfeita e o suporte é excelente."
+          </div>
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+        <div class="testimonial-card fade-in-up stagger-delay-3">
+          <div class="testimonial-header">
+            <div class="testimonial-avatar">PC</div>
+            <div class="testimonial-info">
+              <h4>Ana Júlia</h4>
+              <p>CEO, Contabilidade</p>
+            </div>
+          </div>
+          <div class="testimonial-text">
+            "Implementamos o Prumo e os resultados foram impressionantes. A conformidade fiscal agora é uma certeza, não um risco."
+          </div>
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Planos - SEÇÃO RESTAURADA -->
+  <section id="planos" class="pricing">
+    <div class="container">
+      <div class="section-header fade-in-up">
+        <h2>Preços por Quantidade de CNPJs</h2>
+        <p>Escolha a solução ideal para sua contabilidade: Encerramento ISS ou DT-E Consulta.</p>
+      </div>
+      <div style="
+        display: flex;
+        gap: 50px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 60px;
+        padding: 0 10px;
+      ">
+        <!-- Tabela ISS -->
+        <div style="
+          background: var(--white);
+          border-radius: var(--radius-lg);
+          padding: 30px;
+          box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+          max-width: 320px;
+          width: 100%;
+          text-align: center;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          cursor: pointer;
+        " class="fade-in-up stagger-delay-1" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 40px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 12px 40px rgba(0,0,0,0.08)'" onclick="window.open('https://wa.me/5585999533991?text=Olá,%20gostaria%20de%20solicitar%20o%20Encerramento%20ISS.', '_blank')">
+          <div style="
+            background: var(--navy-900);
+            color: var(--white);
+            padding: 14px 20px;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            font-weight: 800;
+            font-size: 1.15rem;
+          ">
+            Encerramento ISS
+          </div>
+          <div style="
+            border-top: 1px solid var(--gray-200);
+            padding: 20px 0 15px;
+            text-align: left;
+          ">
+            <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200);">
+              <span>Até 100 CNPJs</span>
+              <span>R$ 200,00</span>
+            </div>
+            <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200);">
+              <span>Até 300 CNPJs</span>
+              <span>R$ 390,00</span>
+            </div>
+            <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200);">
+              <span>Até 500 CNPJs</span>
+              <span>R$ 550,00</span>
+            </div>
+            <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200);">
+              <span>Até 800 CNPJs</span>
+              <span>R$ 640,00</span>
+            </div>
+            <div style="
+              padding: 18px 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              color: var(--red);
+              font-weight: 700;
+              border-top: 1px dashed var(--gray-300);
+              margin-top: 15px;
+              background: rgba(239,68,68,0.05);
+              border-radius: 8px;
+            ">
+              <span>Mais de 800 CNPJs</span>
+              <span>Solicitar orçamento</span>
+            </div>
+          </div>
+          <div style="margin-top: 25px; text-align: center;">
+            <a href="https://wa.me/5585999533991?text=Olá,%20gostaria%20de%20solicitar%20o%20Encerramento%20ISS." class="pricing-btn" style="font-size: 0.95rem; padding: 12px 20px;">Solicitar ISS</a>
+          </div>
+        </div>
+        <!-- Tabela DTE -->
+        <div style="
+          background: var(--white);
+          border-radius: var(--radius-lg);
+          padding: 30px;
+          box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+          max-width: 320px;
+          width: 100%;
+          text-align: center;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          cursor: pointer;
+        " class="fade-in-up stagger-delay-2" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 40px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 12px 40px rgba(0,0,0,0.08)'" onclick="window.open('https://wa.me/5585999533991?text=Olá,%20gostaria%20de%20solicitar%20a%20DT-E%20Consulta.', '_blank')">
+          <div style="
+            background: var(--grad-accent);
+            color: var(--white);
+            padding: 14px 20px;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            font-weight: 800;
+            font-size: 1.15rem;
+          ">
+            DT-E Consulta
+          </div>
+          <div style="
+            border-top: 1px solid var(--gray-200);
+            padding: 20px 0 15px;
+            text-align: left;
+          ">
+            <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200);">
+              <span>Até 100 CNPJs</span>
+              <span>R$ 100,00</span>
+            </div>
+            <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200);">
+              <span>Até 300 CNPJs</span>
+              <span>R$ 195,00</span>
+            </div>
+            <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200);">
+              <span>Até 500 CNPJs</span>
+              <span>R$ 275,00</span>
+            </div>
+            <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200);">
+              <span>Até 800 CNPJs</span>
+              <span>R$ 320,00</span>
+            </div>
+            <div style="
+              padding: 18px 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              color: var(--red);
+              font-weight: 700;
+              border-top: 1px dashed var(--gray-300);
+              margin-top: 15px;
+              background: rgba(239,68,68,0.05);
+              border-radius: 8px;
+            ">
+              <span>Mais de 800 CNPJs</span>
+              <span>Solicitar orçamento</span>
+            </div>
+          </div>
+          <div style="margin-top: 25px; text-align: center;">
+            <a href="https://wa.me/5585999533991?text=Olá,%20gostaria%20de%20solicitar%20a%20DT-E%20Consulta." class="pricing-btn" style="font-size: 0.95rem; padding: 12px 20px;">Solicitar DTE</a>
+          </div>
+        </div>
+      </div>
+      <div style="
+        text-align: center;
+        margin-top: 70px;
+        padding: 0 20px;
+      " class="fade-in-up stagger-delay-3">
+        <p style="color: var(--gray-500); margin-bottom: 20px; max-width: 600px; margin-left: auto; margin-right: auto;">
+          Precisa de ajuda para escolher? Nossa equipe está pronta para te atender!
+        </p>
+        <a href="https://wa.me/5585999533991?text=Olá,%20gostaria%20de%20falar%20com%20um%20especialista%20sobre%20as%20soluções%20do%20Prumo." class="cta-btn">Fale com um Especialista</a>
+      </div>
+    </div>
+  </section>
+  <!-- Footer -->
+  <footer id="contato">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col fade-in-up stagger-delay-1">
+          <h4>Prumo</h4>
+          <p>Soluções inteligentes em automação para empresas de todos os portes.</p>
+          <div class="social-links">
+            <a href="https://www.instagram.com/prumo.tech?igsh=MTl4dTA0aDFycTRzNg==" target="_blank" rel="noopener">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=prumo.sistema@gmail.com&su=Contato%20via%20site%20Prumo&body=Olá,%20gostaria%20de%20mais%20informações%20sobre%20as%20soluções%20do%20Prumo." target="_blank" rel="noopener">
+              <i class="fas fa-envelope"></i>
+            </a>
+          </div>
+        </div>
+        <div class="footer-col fade-in-up stagger-delay-2">
+          <h4>Soluções</h4>
+          <ul>
+            <li><a href="#solucoes">Encerramento ISS</a></li>
+            <li><a href="#solucoes">DT-E Consulta</a></li>
+            <li><a href="painel-contador.html" target="_blank">Painel do Contador</a></li>
+            <li><a href="#solucoes">Personalizado</a></li>
+          </ul>
+        </div>
+        <div class="footer-col fade-in-up stagger-delay-3">
+          <h4>Empresa</h4>
+          <ul>
+            <li><a href="#inicio">Início</a></li>
+            <li><a href="#depoimentos">Cases de Sucesso</a></li>
+          </ul>
+        </div>
+        <div class="footer-col fade-in-up stagger-delay-4">
+          <h4>Suporte</h4>
+          <ul>
+            <li><a href="https://wa.me/5585999533991?text=Olá,%20preciso%20de%20ajuda%20com%20o%20sistema%20Prumo.%20Poderia%20me%20auxiliar?" target="_blank" rel="noopener">Central de Ajuda</a></li>
+            <li><a href="https://wa.me/5585999533991?text=Olá,%20vim%20pelo%20site%20e%20gostaria%20de%20entrar%20em%20contato." target="_blank" rel="noopener">Contato</a></li>
+            <li><a href="#cookie-policy">Política de Cookies</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright fade-in-up">
+        &copy; 2025 Prumo Soluções Tecnológicas. Todos os direitos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Banner de Cookies -->
+  <div id="cookieBanner" class="cookie-banner">
+    <p>Utilizamos cookies para oferecer uma melhor experiência de navegação. Ao continuar, você concorda com nossa <a href="#cookie-policy">política de cookies</a>.</p>
+    <div class="cookie-actions">
+      <button class="btn-accept">Aceitar</button>
+      <button class="btn-configure">Configurar</button>
+    </div>
+  </div>
+
+  <!-- Modal de Configuração de Cookies -->
+  <div id="cookieModal" class="cookie-modal">
+    <div class="cookie-modal-content">
+      <h3>Configurações de Cookies</h3>
+      <p>Você pode personalizar suas preferências de cookies abaixo. Saiba mais em nossa <a href="#cookie-policy">política de cookies</a>.</p>
+      <div class="cookie-option">
+        <label>
+          <input type="checkbox" id="essentialCookies" checked disabled>
+          Cookies Essenciais (obrigatórios)
+        </label>
+        <p style="font-size: 0.8rem; color: var(--gray-500); margin: 5px 0 0 28px;">
+          Necessários para o funcionamento do site, como navegação e segurança.
+        </p>
+      </div>
+      <div class="cookie-option">
+        <label>
+          <input type="checkbox" id="analyticsCookies">
+          Cookies de Análise
+        </label>
+        <p style="font-size: 0.8rem; color: var(--gray-500); margin: 5px 0 0 28px;">
+          Usados para entender como os visitantes interagem com o site, de forma anônima.
+        </p>
+      </div>
+      <div class="cookie-option">
+        <label>
+          <input type="checkbox" id="marketingCookies">
+          Cookies de Marketing
+        </label>
+        <p style="font-size: 0.8rem; color: var(--gray-500); margin: 5px 0 0 28px;">
+          Utilizados para oferecer conteúdo personalizado e anúncios relevantes.
+        </p>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button class="btn-back">Voltar</button>
+        <button class="btn-save">Salvar Preferências</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Política de Cookies -->
+  <div id="cookiePolicyModal" class="cookie-policy-modal">
+    <div class="cookie-policy-modal-content">
+      <h2>Política de Cookies</h2>
+      <div>
+        <h3>O que são cookies?</h3>
+        <p>
+          Cookies são pequenos arquivos de texto armazenados no seu dispositivo quando você visita nosso site. Eles ajudam a melhorar sua experiência de navegação, lembrar suas preferências e fornecer informações sobre como o site é usado.
+        </p>
+        <h3>Tipos de cookies que usamos</h3>
+        <ul>
+          <li><strong>Cookies Essenciais:</strong> Necessários para o funcionamento do site, como navegação e segurança. Não podem ser desativados.</li>
+          <li><strong>Cookies de Análise:</strong> Coletam dados anônimos sobre como os visitantes usam o site, ajudando-nos a melhorar sua funcionalidade.</li>
+          <li><strong>Cookies de Marketing:</strong> Usados para exibir anúncios personalizados e conteúdo relevante com base nos seus interesses.</li>
+        </ul>
+      </div>
+      <button class="btn-policy-back">Voltar</button>
+    </div>
+  </div>
+
+  <!-- Botão flutuante do WhatsApp -->
+  <a href="https://wa.me/5585999533991?text=Olá,%20gostaria%20de%20falar%20sobre%20as%20soluções%20do%20Prumo." class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+</body>
+</html>

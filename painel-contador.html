@@ -1,0 +1,2314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel do Contador — Empresas &amp; Utilidades</title>
+  <meta name="description" content="Consultas públicas de CNPJ, CNAE, CEP, IBGE, bancos e NFSe. 100% client-side, sem chave e sem login.">
+  <!-- Fontes e ícones do index.html -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <!-- Bootstrap 5 CSS (do painel original) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Lucide Icons (para NFSe) -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    /* ========= Estilos do index.html ========= */
+    :root {
+      --navy-900: #0a192f;
+      --gray-900: #111827;
+      --gray-700: #374151;
+      --gray-500: #6b7280;
+      --gray-200: #e5e7eb;
+      --white: #fff;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --grad-accent: linear-gradient(45deg, #f97316, #fb923c);
+      --radius-lg: 20px;
+      --radius-md: 12px;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: var(--gray-700);
+    }
+    header {
+      background: rgb(255, 255, 255);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gray-200);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+    }
+    .logo {
+    display: flex; gap: 0px; align-items: center;
+    text-decoration: none; font-weight: 900;
+    color: var(--navy-900);
+  }
+  .logo-icon {
+    width: 80px;
+    height: 70px;
+    display: block;
+    background: none !important;
+    border-radius: 0;
+    object-fit: contain;
+  }
+    nav ul {display: flex; gap: 24px; list-style: none; margin: 0; padding: 0;}
+    nav a {text-decoration: none; font-weight: 600; font-size: 0.95rem; color: var(--gray-700); position: relative;}
+    nav a.active::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: -6px;
+      height: 2px; background: var(--grad-accent);
+    }
+    .cta-btn {
+      padding: 10px 14px; border-radius: 12px;
+      background: var(--grad-accent); color: var(--white);
+      font-weight: 800; text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+    }
+    footer {
+      background: var(--gray-900);
+      color: var(--gray-200);
+      padding: 60px 0 30px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-col h4 {
+      color: var(--white);
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+    .footer-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .footer-col ul li {
+      margin-bottom: 10px;
+    }
+    .footer-col ul li a {
+      color: var(--gray-200);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .footer-col ul li a:hover {
+      color: var(--white);
+    }
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .social-links a {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+    .social-links a:hover {
+      background: var(--grad-accent);
+    }
+    .copyright {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: var(--gray-500);
+      font-size: 0.9rem;
+    }
+
+    /* ========= Estilos do Painel do Contador (2.txt) ========= */
+    :root {
+      --primary-900: #0a192f;
+      --primary-800: #1e293b;
+      --primary-700: #334155;
+      --primary-500: #64748b;
+      --primary-300: #cbd5e1;
+      --primary-200: #e2e8f0;
+      --primary-100: #f1f5f9;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #06b6d4;
+      --white: #ffffff;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    /* Removido o fundo gradiente do body do painel original */
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #fff; /* Igual ao index.html */
+      color: var(--primary-700);
+      line-height: 1.6;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      background: var(--white);
+      transition: all .3s ease;
+      overflow: hidden;
+      width: 100%;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    .card-header {
+      background: linear-gradient(135deg, #fafbfc 0%, #f1f5f9 100%);
+      border-bottom: 2px solid var(--primary-200);
+      padding: 20px 24px;
+      font-weight: 700;
+      color: var(--primary-900);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-body {
+      padding: 24px;
+    }
+    /* Buttons */
+    .btn {
+      font-weight: 600;
+      border-radius: var(--radius);
+      padding: 12px 24px;
+      border: 2px solid transparent;
+      transition: all .3s ease;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      left: -100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+      transition: left .5s;
+    }
+    .btn:hover::before {
+      left: 100%;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      color: var(--white);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    .btn-success {
+      background: var(--success);
+      color: var(--white);
+    }
+    .btn-success:hover {
+      background: #059669;
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+    .btn-outline-primary {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: transparent;
+    }
+    .btn-outline-primary:hover {
+      background: var(--accent);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+    .btn-outline-danger {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: transparent;
+    }
+    .btn-outline-danger:hover {
+      background: var(--danger);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 0.875rem;
+    }
+    /* Forms */
+    .form-control, .form-select {
+      border: 2px solid var(--primary-200);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: .95rem;
+      transition: all .3s ease;
+      background: var(--white);
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+      outline: none;
+    }
+    .form-label {
+      font-weight: 600;
+      color: var(--primary-900);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    /* Tables */
+    .table-container {
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: var(--white);
+    }
+    .table thead th {
+      background: var(--primary-900);
+      color: var(--white);
+      border: none;
+      font-weight: 700;
+      padding: 16px 20px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: .875rem;
+    }
+    .table tbody tr {
+      transition: all .2s ease;
+    }
+    .table tbody tr:hover {
+      background: rgba(59,130,246,.02);
+    }
+    .table tbody td {
+      padding: 16px 20px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--primary-200);
+    }
+    /* Stats Cards */
+    .stats-card {
+      text-align: center;
+      padding: 24px 20px;
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: var(--shadow);
+      transition: all .3s ease;
+      border-left: 4px solid var(--accent);
+    }
+    .stats-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    .stats-number {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--primary-900);
+      margin: 12px 0;
+    }
+    .stats-label {
+      color: var(--primary-500);
+      font-weight: 600;
+      font-size: .9rem;
+      margin: 0;
+    }
+    .stats-icon {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    /* Progress */
+    .progress {
+      height: 16px;
+      border-radius: 8px;
+      background: var(--primary-200);
+      overflow: hidden;
+    }
+    .progress-bar {
+      background: linear-gradient(90deg, var(--accent) 0%, #60a5fa 100%);
+      transition: width .6s ease;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(-45deg, rgba(255,255,255,.3) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.3) 50%, rgba(255,255,255,.3) 75%, transparent 75%, transparent);
+      background-size: 1rem 1rem;
+      animation: progress-stripes 1s linear infinite;
+    }
+    @keyframes progress-stripes {
+      0% { background-position: 1rem 0; }
+      100% { background-position: 0 0; }
+    }
+    /* Badges */
+    .badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: .8rem;
+    }
+    .badge-info {
+      background: rgba(6, 182, 212, 0.1);
+      color: var(--info);
+      border: 2px solid rgba(6, 182, 212, 0.2);
+    }
+    /* Modal */
+    .modal-content {
+      border: none;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-header {
+      background: linear-gradient(135deg, #fafbfc 0%, #f1f5f9 100%);
+      border-bottom: 2px solid var(--primary-200);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    /* Logs */
+    .logs-container {
+      background: var(--primary-900);
+      color: #10b981;
+      border-radius: var(--radius);
+      font-family: 'SF Mono','Monaco','Inconsolata','Roboto Mono',monospace;
+      font-size: .875rem;
+      line-height: 1.5;
+    }
+    /* Accordion */
+    .accordion-button {
+      font-weight: 600;
+      padding: 16px 20px;
+    }
+    .accordion-button:not(.collapsed) {
+      background: rgba(59,130,246,.05);
+      color: var(--accent);
+    }
+    .accordion-button:focus {
+      box-shadow: none;
+      border-color: transparent;
+    }
+    /* Stage headers (dinâmicos) */
+    .stage-header {
+      text-align: center;
+      padding: 8px;
+    }
+    .stage-label {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin: 4px 0;
+      color: var(--white);
+    }
+    /* Checkboxes */
+    .form-check-input {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 2px solid var(--primary-300);
+    }
+    .form-check-input:checked {
+      background-color: var(--accent);
+      border-color: var(--accent);
+    }
+    /* Search */
+    .search-wrapper {
+      position: relative;
+      max-width: 400px;
+    }
+    .search-wrapper .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary-500);
+      pointer-events: none;
+    }
+    .search-wrapper .form-control {
+      padding-left: 48px;
+    }
+    /* Empty States */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--primary-500);
+    }
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      color: var(--primary-300);
+    }
+    /* Animations */
+    .fade-in {
+      animation: fadeIn .5s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .card {
+        margin: 0 12px 16px;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    /* Estilos específicos para a aplicação */
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .app-content {
+      min-height: 80vh;
+      padding: 24px;
+    }
+    .kv-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .kv-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .kv-item {
+      display: flex;
+      flex-direction: column;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--primary-200);
+    }
+    .kv-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--primary-500);
+      margin-bottom: 4px;
+    }
+    .kv-value {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--primary-900);
+    }
+    .activity-item {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      background: var(--primary-100);
+      margin-bottom: 8px;
+    }
+    .activity-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.875rem;
+      color: var(--primary-700);
+      margin-bottom: 4px;
+    }
+    .activity-desc {
+      font-size: 0.95rem;
+      color: var(--primary-900);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .status-badge.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .status-badge.warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .status-badge.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.25);
+      border-top-color: #fff;
+      animation: spin 1s linear infinite;
+      margin-left: 8px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .debug-output {
+      max-height: 400px;
+      overflow: auto;
+      background: var(--primary-900);
+      color: #10b981;
+      border-radius: var(--radius);
+      padding: 16px;
+      font-family: 'SF Mono','Monaco','Inconsolata','Roboto Mono',monospace;
+      font-size: .875rem;
+      line-height: 1.5;
+    }
+    /* ========= Estilos isolados para NFSe ========= */
+      #nfse .nfse-wrapper {
+        /* Removida a altura fixa */
+        background: #f8fafc;
+        display: flex;
+        /* Adicionado para evitar que o wrapper tenha rolagem interna */
+        overflow: hidden;
+      }
+
+      #nfse .sidebar {
+        position: relative;
+        width: 550px;
+        background: white;
+        border-right: 1px solid #e2e8f0;
+        /* Removido overflow-y: auto para evitar barra de rolagem */
+        flex-shrink: 0;
+        /* Adicionado para garantir que o conteúdo não ultrapasse */
+        overflow-y: hidden;
+      }
+
+      #nfse .main-content {
+        background: #f8fafc;
+        padding: 1rem;
+        max-width: 100vw;
+        overflow-x: hidden;
+        flex-grow: 1;
+        /* Permite que o conteúdo se ajuste à altura disponível */
+        overflow-y: visible; /* <-- Isso remove a barra de rolagem interna */
+      }
+
+      /* Garantir que a lista de notas não ultrapasse o sidebar */
+      #nfse .nfse-list {
+        height: 100%;
+        overflow-y: auto; /* <-- Apenas a lista de notas tem rolagem */
+      }
+
+      /* Garantir que o detalhe da nota não ultrapasse o main-content */
+      #nfse .nfse-detail {
+        max-height: 100%;
+        overflow-y: auto; /* <-- Apenas o detalhe da nota tem rolagem se necessário */
+      }
+
+/* ... (mantenha o resto dos estilos da NFSe inalterados) ... */
+    #nfse .main-content {
+      /* Removido min-height fixo */
+      background: #f8fafc;
+      padding: 1rem;
+      max-width: 100vw;
+      overflow-x: hidden;
+      flex-grow: 1;
+      /* Adicionado: permite que o conteúdo se ajuste sem rolagem interna */
+      overflow-y: visible; /* <-- Isso remove a barra de rolagem interna */
+    }
+    #nfse .header {
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      color: rgb(255, 254, 254);
+      padding: 1.5rem;
+      position: sticky;
+      top: 0;
+    }
+    #nfse .stats-bar {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgb(255, 255, 255);
+    }
+    #nfse .stat-item {
+      text-align: center;
+    }
+    #nfse .stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    #nfse .stat-label {
+      font-size: 0.75rem;
+      opacity: 0.9;
+      margin-top: 0.25rem;
+    }
+    #nfse .filters {
+      padding: 1rem;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    #nfse .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    #nfse .filter-group label {
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+    #nfse .filter-group input,
+    #nfse .filter-group select {
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    #nfse .search-box {
+      flex: 1;
+      min-width: 250px;
+    }
+    #nfse .nfse-list {
+      padding: 0;
+    }
+    #nfse .nfse-item {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    #nfse .nfse-item:hover {
+      background: #f1f5f9;
+    }
+    #nfse .nfse-item.selected {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+    }
+    #nfse .nfse-item.cancelled {
+      opacity: 0.7;
+      background: #fef2f2;
+    }
+    #nfse .nfse-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 0.5rem;
+    }
+    #nfse .nfse-number {
+      font-weight: 700;
+      color: #1e40af;
+      font-size: 0.9rem;
+    }
+    #nfse .nfse-date {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+    #nfse .nfse-value {
+      font-weight: 700;
+      color: #059669;
+      font-size: 1rem;
+    }
+    #nfse .nfse-client {
+      font-size: 0.875rem;
+      color: #374151;
+      font-weight: 500;
+    }
+    #nfse .nfse-service {
+      font-size: 0.75rem;
+      color: #64748b;
+      line-height: 1.3;
+      margin-top: 0.25rem;
+    }
+    #nfse .nfse-badges {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    #nfse .badge {
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.65rem;
+      font-weight: 500;
+    }
+    #nfse .badge-cancelled {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    #nfse .badge-iss {
+      background: #fef3c7;
+      color: #d97706;
+    }
+    #nfse .badge-simples {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    #nfse .badge-extra {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    #nfse .empty-state {
+     text-align: center;
+     padding: 2rem;
+     color: #64748b;
+     max-width: 500px;
+    }   
+    #nfse .nfse-detail {
+        display: none;
+        padding: 2rem;
+        background: white;
+        margin: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+    #nfse .detail-header {
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 0.5rem 0.5rem 0 0;
+      margin: -2rem -2rem 2rem -2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #nfse .detail-title {
+      display: flex;
+      flex-direction: column;
+    }
+    #nfse .detail-number {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    #nfse .detail-date {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.875rem;
+    }
+    #nfse .detail-value {
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: right;
+    }
+    #nfse .detail-value-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    #nfse .alert-cancelled {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #dc2626;
+      font-size: 0.875rem;
+    }
+    #nfse .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    #nfse .quick-stat {
+      text-align: center;
+      padding: 0.75rem;
+      background: white;
+      border-radius: 0.375rem;
+    }
+    #nfse .quick-stat-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+    #nfse .quick-stat-label {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+    #nfse .sections {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: #e2e8f0;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    #nfse .section {
+      background: white;
+    }
+    #nfse .section-header {
+      padding: 1rem;
+      background: #f8fafc;
+      border: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 500;
+    }
+    #nfse .section-header:hover {
+      background: #f1f5f9;
+    }
+    #nfse .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #nfse .section-content {
+      padding: 1rem;
+      display: none;
+    }
+    #nfse .section-content.expanded {
+      display: block;
+    }
+    #nfse .values-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    #nfse .value-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    #nfse .value-item:last-child {
+      border-bottom: none;
+    }
+    #nfse .value-label {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    #nfse .value-amount {
+      font-weight: 600;
+      color: #059669;
+    }
+    #nfse .value-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #nfse .hide-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+    }
+    #nfse .hide-btn:hover {
+      color: #64748b;
+      background: #f1f5f9;
+    }
+    /* Modal NFSe */
+    #xmlModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1050;
+    }
+    #xmlModal.flex {
+      display: flex;
+    }
+    #xmlModal .modal-content {
+      background: white;
+      border-radius: 0.5rem;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow: auto;
+      padding: 1rem;
+    }
+    #xmlModal table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.5rem 0;
+    }
+    #xmlModal th,
+    #xmlModal td {
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+      vertical-align: top;
+    }
+    #xmlModal th {
+      background: #eee;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <!-- Cabeçalho idêntico ao index.html -->
+  <header>
+    <div class="container nav">
+      <a href="index.html" class="logo">
+        <img src="favicon.ico" alt="Prumo" class="logo-icon">
+        Prumo
+      </a>
+      <nav>
+        <ul>
+          <li><a href="index.html#inicio">Início</a></li>
+          <li><a href="index.html#solucoes">Soluções</a></li>
+          <li><a href="index.html#depoimentos">Expertise</a></li>
+          <li><a href="index.html#contato">Contato</a></li>
+          <li><a class="active" href="#">Painel do Contador</a></li>
+        </ul>
+      </nav>
+      <a href="index.html#planos" class="cta-btn">Preços</a>
+    </div>
+  </header>
+
+  <!-- Conteúdo do Painel do Contador -->
+  <div class="app-container">
+    <!-- Navigation Tabs (mantidas do painel original) -->
+    <div class="nav-container" style="margin: 24px 16px 0;">
+      <ul class="nav nav-tabs" id="appTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="cnpj-tab" data-bs-toggle="tab" data-bs-target="#cnpj" type="button" role="tab" aria-selected="true">
+            <i class="bi bi-building"></i> CNPJ
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="ncm-tab" data-bs-toggle="tab" data-bs-target="#ncm" type="button" role="tab" aria-selected="false">
+            <i class="bi bi-box-seam"></i> NCM
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="cep-tab" data-bs-toggle="tab" data-bs-target="#cep" type="button" role="tab" aria-selected="false">
+            <i class="bi bi-geo-alt"></i> CEP
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="ibge-tab" data-bs-toggle="tab" data-bs-target="#ibge" type="button" role="tab" aria-selected="false">
+            <i class="bi bi-map"></i> IBGE
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="nfse-tab" data-bs-toggle="tab" data-bs-target="#nfse" type="button" role="tab" aria-selected="false">
+            <i class="bi bi-file-earmark-text"></i> NFSe
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="app-grid">
+      <main class="app-content">
+        <div class="tab-content">
+          <!-- CNPJ Tab -->
+          <div class="tab-pane fade active show" id="cnpj" role="tabpanel" aria-labelledby="cnpj-tab">
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-building text-primary"></i>
+                Consulta de Empresa por CNPJ
+              </div>
+              <div class="card-body">
+                <p class="text-muted mb-4">
+                  Primeiro usa <b>BrasilAPI</b> (sem CORS). Opcionalmente com <b>ReceitaWS</b> via proxy público
+                  <span class="small text-muted">(AllOrigins)</span>.
+                </p>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-4">
+                    <label for="cnpjInput" class="form-label">CNPJ</label>
+                    <input type="text" class="form-control" id="cnpjInput" placeholder="00.000.000/0001-00" maxlength="18" inputmode="numeric">
+                    <div class="form-text">Aceita com ou sem máscara.</div>
+                  </div>
+                  <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="btnCNPJ">
+                      <i class="bi bi-search"></i> Consultar
+                    </button>
+                  </div>
+                  <div class="col-md-5 d-flex align-items-center">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="tryReceita" checked>
+                      <label class="form-check-label" for="tryReceita">
+                        Tentar complementar com ReceitaWS (via <span class="font-monospace">api.allorigins.win</span>)
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div id="cnpjStatus" class="mb-4"><span class="status-badge success">Consulta concluída</span></div>
+                <div class="row g-4">
+                  <div class="col-lg-6">
+                    <div class="card h-100">
+                      <div class="card-header">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        Dados Gerais
+                      </div>
+                      <div class="card-body">
+                        <div class="kv-grid" id="cnpjKV">
+                          <!-- Conteúdo preenchido dinamicamente -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="card h-100">
+                      <div class="card-header">
+                        <i class="bi bi-list-check text-primary"></i>
+                        Atividades
+                      </div>
+                      <div class="card-body" id="cnpjAtividades">
+                        <!-- Conteúdo preenchido dinamicamente -->
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="card h-100">
+                      <div class="card-header">
+                        <i class="bi bi-geo-alt text-primary"></i>
+                        Endereço &amp; Contato
+                      </div>
+                      <div class="card-body">
+                        <div class="kv-grid" id="cnpjEnd">
+                          <!-- Conteúdo preenchido dinamicamente -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="card h-100">
+                      <div class="card-header">
+                        <i class="bi bi-people text-primary"></i>
+                        Quadro Societário
+                      </div>
+                      <div class="card-body" id="cnpjQSA">
+                        <!-- Conteúdo preenchido dinamicamente -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NCM Tab -->
+          <div class="tab-pane fade" id="ncm" role="tabpanel" aria-labelledby="ncm-tab">
+            <div class="card">
+              <div class="card-header">
+                <i class="bi bi-box-seam text-primary"></i>
+                Consulta NCM (Nomenclatura Comum do Mercosul)
+              </div>
+              <div class="card-body">
+                <p class="text-muted mb-4">Busca por código ou descrição via <b>BrasilAPI</b>.</p>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                    <label for="ncmQuery" class="form-label">Código ou termo</label>
+                    <input type="text" class="form-control" id="ncmQuery" placeholder="Ex.: 8517.62.00 ou 'telefone celular'">
+                  </div>
+                  <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="btnNCM">
+                      <i class="bi bi-search"></i> Pesquisar
+                    </button>
+                  </div>
+                </div>
+                <div id="ncmStatus" class="mb-4"><span class="status-badge info">Digite um termo para buscar</span></div>
+                <div id="ncmList"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CEP Tab -->
+          <div class="tab-pane fade" id="cep" role="tabpanel" aria-labelledby="cep-tab">
+            <div class="card">
+              <div class="card-header">
+                <i class="bi bi-geo-alt text-primary"></i>
+                CEP / Endereço
+              </div>
+              <div class="card-body">
+                <p class="text-muted mb-4">Validação e dados de logradouro por <b>BrasilAPI</b>.</p>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-4">
+                    <label for="cepInput" class="form-label">CEP</label>
+                    <input type="text" class="form-control" id="cepInput" placeholder="01001-000" maxlength="9" inputmode="numeric">
+                  </div>
+                  <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="btnCEP">
+                      <i class="bi bi-search"></i> Consultar CEP
+                    </button>
+                  </div>
+                </div>
+                <div id="cepStatus" class="mb-4"><span class="status-badge success">OK</span></div>
+                <div class="card">
+                  <div class="card-body">
+                    <div class="kv-grid" id="cepKV">
+                      <!-- Conteúdo preenchido dinamicamente -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- IBGE Tab -->
+          <div class="tab-pane fade" id="ibge" role="tabpanel" aria-labelledby="ibge-tab">
+            <div class="card">
+              <div class="card-header">
+                <i class="bi bi-map text-primary"></i>
+                IBGE — Estados &amp; Municípios
+              </div>
+              <div class="card-body">
+                <p class="text-muted mb-4">Listas oficiais de UF e municípios (útil para cadastros).</p>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-4">
+                    <label for="ufSelect" class="form-label">Estado (UF)</label>
+                    <select class="form-select" id="ufSelect">
+                      <option value="">Selecione...</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="btnMunicipios">
+                      <i class="bi bi-list-ul"></i> Carregar Municípios
+                    </button>
+                  </div>
+                </div>
+                <div id="ibgeStatus" class="mb-4"><span class="status-badge success">Municípios: 0</span></div>
+                <div class="table-container">
+                  <table class="table table-hover" id="muniTable">
+                    <thead>
+                      <tr>
+                        <th>Município</th>
+                        <th>Microrregião</th>
+                        <th>Mesorregião</th>
+                        <th>UF</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NFSe Tab -->
+          <div class="tab-pane fade" id="nfse" role="tabpanel" aria-labelledby="nfse-tab">
+            <div class="nfse-wrapper">
+              <div class="sidebar">
+                <div class="header">
+                  <h1>Sistema NFSe</h1>
+                  <p>Contador</p>
+                  <div class="stats-bar">
+                    <div class="stat-item">
+                      <div class="stat-value" id="totalNotas">0</div>
+                      <div class="stat-label">Total de Notas</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-value" id="totalValor">R$ 0,00</div>
+                      <div class="stat-label">Valor Total</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-value" id="totalIss">R$ 0,00</div>
+                      <div class="stat-label">ISS Total</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="filters">
+                  <div class="filter-group"><label>Importar XML</label><input type="file" id="xmlInput" accept=".xml" multiple /></div>
+                  <div class="filter-group search-box"><label>Buscar</label><input type="text" id="searchInput" placeholder="Número, cliente, CNPJ..." /></div>
+                  <div class="filter-group"><label>Período</label>
+                    <select id="periodoFilter">
+                      <option value="">Todos</option>
+                      <option value="hoje">Hoje</option>
+                      <option value="semana">Esta Semana</option>
+                      <option value="mes">Este Mês</option>
+                    </select>
+                  </div>
+                  <div class="filter-group"><label>Status</label>
+                    <select id="statusFilter">
+                      <option value="">Todos</option>
+                      <option value="normal">Normal</option>
+                      <option value="cancelada">Cancelada</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="nfse-list" id="nfseList"></div>
+              </div>
+              <div class="main-content">
+                <div id="emptyState" class="empty-state">
+                  <h3>Selecione uma NFSe</h3>
+                  <p>Clique em uma nota da lista para visualizar os detalhes completos</p>
+                </div>
+                <div id="nfseDetail" class="nfse-detail"></div>
+              </div>
+            </div>
+            <!-- Modal XML -->
+            <div id="xmlModal">
+              <div class="modal-content">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                  <h2 class="h5">Visualizador de XML</h2>
+                  <button id="btn-close-xml" class="btn btn-sm btn-outline-secondary"><i data-lucide="x"></i></button>
+                </div>
+                <div id="xmlViewer"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Rodapé idêntico ao index.html -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>Prumo</h4>
+          <p>Soluções inteligentes em automação para empresas de todos os portes.</p>
+          <div class="social-links">
+            <a href="https://www.instagram.com/prumo.tech?igsh=MTl4dTA0aDFycTRzNg==" target="_blank" rel="noopener">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=prumo.sistema@gmail.com&su=Contato%20via%20site%20Prumo&body=Olá,%20gostaria%20de%20mais%20informações%20sobre%20as%20soluções%20do%20Prumo." target="_blank" rel="noopener">
+              <i class="fas fa-envelope"></i>
+            </a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Soluções</h4>
+          <ul>
+            <li><a href="index.html#solucoes">Encerramento ISS</a></li>
+            <li><a href="index.html#solucoes">DT-E Consulta</a></li>
+            <li><a href="#">Painel do Contador</a></li>
+            <li><a href="index.html#solucoes">Personalizado</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Empresa</h4>
+          <ul>
+            <li><a href="index.html#inicio">Início</a></li>
+            <li><a href="index.html#depoimentos">Cases de Sucesso</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Suporte</h4>
+          <ul>
+            <li><a href="https://wa.me/5585999533991?text=Olá,%20preciso%20de%20ajuda%20com%20o%20sistema%20Prumo.%20Poderia%20me%20auxiliar?" target="_blank" rel="noopener">Central de Ajuda</a></li>
+            <li><a href="https://wa.me/5585999533991?text=Olá,%20vim%20pelo%20site%20e%20gostaria%20de%20entrar%20em%20contato." target="_blank" rel="noopener">Contato</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        &copy; 2025 Prumo Soluções Tecnológicas. Todos os direitos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts do Painel do Contador -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    /* ========= helpers ========= */
+    const $ = sel => document.querySelector(sel);
+    const fmt = {
+      onlyDigits: s => (s||'').replace(/\D/g,''),
+      maskCNPJ: s => (s||'').replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, '$1.$2.$3/$4-$5'),
+      maskCEP:  s => (s||'').replace(/^(\d{5})(\d{3}).*/, '$1-$2'),
+    };
+    function setStatus(el, kind, msg){
+      const map = {
+        ok: 'success',
+        warn: 'warning', 
+        err: 'error'
+      };
+      const badgeClass = map[kind] || 'info';
+      el.innerHTML = msg ? `<span class="status-badge ${badgeClass}">${msg}</span>` : '';
+    }
+    function toKV(container, pairs){
+      container.innerHTML = pairs.filter(Boolean).map(([k,v])=>`
+        <div class="kv-item">
+          <div class="kv-label">${k}</div>
+          <div class="kv-value">${v ?? '<span class="text-muted">—</span>'}</div>
+        </div>
+      `).join('');
+    }
+    function list(container, items){
+      container.innerHTML = items.join('');
+    }
+    function sanitizeCNPJInput(){
+      const el = $('#cnpjInput');
+      let v = fmt.onlyDigits(el.value).slice(0,14);
+      if(v.length>2) v = v.replace(/^(\d{2})(\d+)/, '$1.$2');
+      if(v.length>6) v = v.replace(/^(\d{2})\.(\d{3})(\d+)/, '$1.$2.$3');
+      if(v.length>10) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d+)/, '$1.$2.$3/$4');
+      if(v.length>15) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d+)/, '$1.$2.$3/$4-$5');
+      el.value = v;
+    }
+    $('#cnpjInput').addEventListener('input', sanitizeCNPJInput);
+    /* ========= CNPJ ========= */
+    async function fetchBrasilApiCNPJ(cnpj){
+      const url = `https://brasilapi.com.br/api/cnpj/v1/${cnpj}`;
+      const r = await fetch(url);
+      if(!r.ok) {
+        const text = await r.text().catch(()=> '');
+        throw new Error(`BrasilAPI: ${r.status} ${r.statusText} ${text?'- '+text.slice(0,80):''}`);
+      }
+      return r.json();
+    }
+    async function fetchReceitaWSViaProxy(cnpj){
+      const target = `https://receitaws.com.br/v1/cnpj/${cnpj}`;
+      const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`;
+      const r = await fetch(url);
+      if(!r.ok) throw new Error(`ReceitaWS(proxy): ${r.status} ${r.statusText}`);
+      const txt = await r.text();
+      try { return JSON.parse(txt); } catch { throw new Error('ReceitaWS(proxy): resposta inválida'); }
+    }
+    function mergeCompany(bra, rec){
+      const base = bra || {};
+      const extra = rec || {};
+      return {
+        nome: base.razao_social || extra.nome,
+        fantasia: base.nome_fantasia || extra.fantasia,
+        cnpj: fmt.maskCNPJ(fmt.onlyDigits(base.cnpj || extra.cnpj || '')),
+        situacao: base.descricao_situacao_cadastral || extra.situacao,
+        tipo: base.tipo || extra.tipo,
+        porte: base.porte || extra.porte,
+        abertura: base.data_inicio_atividade || extra.abertura,
+        natureza_juridica: base.codigo_natureza_juridica ? `${base.codigo_natureza_juridica}` : extra.natureza_juridica,
+        capital_social: base.capital_social || extra.capital_social,
+        email: base.email || extra.email,
+        telefone: base.telefone || extra.telefone,
+        logradouro: base.logradouro || extra.logradouro,
+        numero: base.numero || extra.numero,
+        complemento: base.complemento || extra.complemento,
+        bairro: base.bairro || extra.bairro,
+        municipio: base.municipio || extra.municipio,
+        uf: base.uf || extra.uf,
+        cep: base.cep || extra.cep,
+        atividade_principal: (base.cnae_fiscal_descricao ? [{ code: base.cnae_fiscal, text: base.cnae_fiscal_descricao }] : (extra.atividade_principal || [])),
+        atividades_secundarias: (base.cnaes_secundarios?.map(x=>({code:x.codigo, text:x.descricao})) || (extra.atividades_secundarias || [])),
+        qsa: extra.qsa || [],
+        fontes: { brasilapi: !!bra, receitaws: !!rec }
+      };
+    }
+    function renderCompany(data){
+      toKV($('#cnpjKV'), [
+        ['Razão Social', data.nome],
+        ['Fantasia', data.fantasia || '—'],
+        ['CNPJ', `<span class="font-monospace">${data.cnpj||''}</span>`],
+        ['Situação', data.situacao || '—'],
+        ['Tipo', data.tipo || '—'],
+        ['Porte', data.porte || '—'],
+        ['Abertura', data.abertura || '—'],
+        ['Nat. Jurídica', data.natureza_juridica || '—'],
+        ['Capital Social', data.capital_social ? `R$ ${parseFloat(data.capital_social).toLocaleString('pt-BR',{minimumFractionDigits:2})}` : '—'],
+      ]);
+      const acts = [];
+      if(data.atividade_principal?.length){
+        acts.push(...data.atividade_principal.map(a=>`
+          <div class="activity-item">
+            <div class="activity-code font-monospace">${a.code||''}</div>
+            <div class="activity-desc">${a.text||''}</div>
+          </div>
+        `));
+      }
+      if(data.atividades_secundarias?.length){
+        acts.push('<h6 class="mt-3 mb-2">Atividades Secundárias</h6>');
+        acts.push(...data.atividades_secundarias.map(a=>`
+          <div class="activity-item">
+            <div class="activity-code font-monospace">${a.code||''}</div>
+            <div class="activity-desc">${a.text||''}</div>
+          </div>
+        `));
+      }
+      list($('#cnpjAtividades'), acts.length?acts:[`<p class="text-muted">Sem atividades listadas.</p>`]);
+      toKV($('#cnpjEnd'), [
+        ['Logradouro', [data.logradouro, data.numero].filter(Boolean).join(', ') || '—'],
+        ['Compl.', data.complemento || '—'],
+        ['Bairro', data.bairro || '—'],
+        ['Município', [data.municipio, data.uf].filter(Boolean).join(' - ') || '—'],
+        ['CEP', data.cep ? fmt.maskCEP(fmt.onlyDigits(data.cep)) : '—'],
+        ['E-mail', data.email || '—'],
+        ['Telefone', data.telefone || '—'],
+      ]);
+      const qsa = data.qsa?.length
+        ? data.qsa.map(s=>`
+          <div class="activity-item">
+            <div><b>${s.nome||''}</b></div>
+            <div class="text-muted small">${s.qual||s.qualificacao||''}</div>
+          </div>
+        `)
+        : [`<p class="text-muted">Sem QSA disponível nesta fonte.</p>`];
+      list($('#cnpjQSA'), qsa);
+      const badges = [];
+      if(data.fontes?.brasilapi) badges.push('<span class="status-badge success">BrasilAPI</span>');
+      if(data.fontes?.receitaws) badges.push('<span class="status-badge warning">ReceitaWS (proxy)</span>');
+      $('#cnpjStatus').innerHTML = badges.join(' ');
+    }
+    $('#btnCNPJ').addEventListener('click', async ()=>{
+      const status = $('#cnpjStatus');
+      setStatus(status,'', '');
+      const cnpj = fmt.onlyDigits($('#cnpjInput').value);
+      if(cnpj.length!==14){ setStatus(status,'err','CNPJ inválido'); return; }
+      setStatus(status,'warn','Consultando... <span class="spinner"></span>');
+      try{
+        const [bra, rec] = await Promise.allSettled([
+          fetchBrasilApiCNPJ(cnpj),
+          $('#tryReceita').checked ? fetchReceitaWSViaProxy(cnpj) : Promise.resolve(null)
+        ]);
+        const braVal = bra.status==='fulfilled' ? bra.value : null;
+        const recVal = rec.status==='fulfilled' ? rec.value : null;
+        if(!braVal && !recVal) throw new Error('Nenhuma fonte retornou dados');
+        const merged = mergeCompany(braVal, recVal);
+        renderCompany(merged);
+        setStatus(status,'ok','Consulta concluída');
+      }catch(err){
+        setStatus(status,'err', err.message || 'Falha na consulta');
+        $('#cnpjKV').innerHTML = $('#cnpjAtividades').innerHTML = $('#cnpjEnd').innerHTML = $('#cnpjQSA').innerHTML = '';
+      }
+    });
+    /* ========= NCM (BrasilAPI) ========= */
+    async function searchNCM(q) {
+      const term = q.trim();
+      if (!term) throw new Error('Termo vazio');
+      const cleanTerm = term.replace(/[.\-]/g, '');
+      if (/^[0-9.\-]+$/.test(term)) {
+        const url = `https://brasilapi.com.br/api/ncm/v1?search=${encodeURIComponent(cleanTerm)}`;
+        const r = await fetch(url);
+        if (!r.ok) throw new Error('Código NCM não encontrado');
+        const data = await r.json();
+        return Array.isArray(data) ? data.filter(item => item.codigo.replace(/[.\-]/g, '') === cleanTerm) : [];
+      }
+      const url = `https://brasilapi.com.br/api/ncm/v1?search=${encodeURIComponent(term)}`;
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('Erro na busca de NCM');
+      const data = await r.json();
+      return Array.isArray(data) ? data : [];
+    }
+    $('#btnNCM').addEventListener('click', async () => {
+      const q = $('#ncmQuery').value || '';
+      if (!q.trim()) {
+        setStatus($('#ncmStatus'), 'warn', 'Informe um código ou termo (ex: 8517.62.00)');
+        $('#ncmList').innerHTML = '';
+        return;
+      }
+      setStatus($('#ncmStatus'), 'warn', 'Buscando... <span class="spinner"></span>');
+      try {
+        const res = await searchNCM(q);
+        if (!res.length) {
+          setStatus($('#ncmStatus'), 'warn', 'Nenhum resultado encontrado');
+          $('#ncmList').innerHTML = '';
+          return;
+        }
+        const html = res.map(x => `
+          <div class="activity-item">
+            <div class="activity-code font-monospace"><b>${x.codigo}</b></div>
+            <div class="activity-desc">${x.descricao}</div>
+          </div>
+        `);
+        list($('#ncmList'), html);
+        setStatus($('#ncmStatus'), 'ok', `Encontrado(s): ${res.length} resultado(s)`);
+      } catch (err) {
+        setStatus($('#ncmStatus'), 'err', err.message || 'Erro ao buscar NCM');
+        $('#ncmList').innerHTML = '';
+      }
+    });
+    /* ========= CEP (BrasilAPI) ========= */
+    $('#btnCEP').addEventListener('click', async ()=>{
+      const cep = fmt.onlyDigits($('#cepInput').value);
+      if(cep.length!==8){ setStatus($('#cepStatus'),'err','CEP inválido'); return; }
+      setStatus($('#cepStatus'),'warn','Consultando CEP... <span class="spinner"></span>');
+      try{
+        const url = `https://brasilapi.com.br/api/cep/v1/${cep}`;
+        const r = await fetch(url);
+        if(!r.ok) throw new Error('CEP não encontrado');
+        const data = await r.json();
+        toKV($('#cepKV'), [
+          ['CEP', fmt.maskCEP(cep)],
+          ['UF', data.state],
+          ['Cidade', data.city],
+          ['Bairro', data.neighborhood || '—'],
+          ['Logradouro', data.street || '—'],
+          ['Latitude', data.location?.coordinates?.latitude ?? '—'],
+          ['Longitude', data.location?.coordinates?.longitude ?? '—'],
+        ]);
+        setStatus($('#cepStatus'),'ok','OK');
+      }catch(err){
+        setStatus($('#cepStatus'),'err', err.message||'Erro ao consultar CEP');
+        $('#cepKV').innerHTML='';
+      }
+    });
+    /* ========= IBGE Localidades ========= */
+    async function loadUFs(){
+      const r = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+      const arr = await r.json();
+      const options = arr.map(uf=>`<option value="${uf.id}" data-sigla="${uf.sigla}">${uf.sigla} — ${uf.nome}</option>`).join('');
+      $('#ufSelect').innerHTML = `<option value="">Selecione...</option>` + options;
+    }
+    async function loadMunicipios(){
+      const sel = $('#ufSelect');
+      const id = sel.value;
+      if(!id){ setStatus($('#ibgeStatus'),'warn','Selecione um estado'); return; }
+      setStatus($('#ibgeStatus'),'warn','Carregando municípios... <span class="spinner"></span>');
+      const sigla = sel.options[sel.selectedIndex].dataset.sigla;
+      const url = `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${id}/municipios`;
+      try{
+        const r = await fetch(url);
+        if(!r.ok) throw new Error('Falha ao carregar municípios');
+        const data = await r.json();
+        const tbody = $('#muniTable tbody');
+        tbody.innerHTML = data.map(m=>{
+          const micro = m.microrregiao?.nome || '';
+          const meso = m.microrregiao?.mesorregiao?.nome || '';
+          return `<tr><td>${m.nome}</td><td>${micro}</td><td>${meso}</td><td>${sigla}</td></tr>`;
+        }).join('');
+        setStatus($('#ibgeStatus'),'ok',`Municípios: ${data.length}`);
+      }catch(err){
+        setStatus($('#ibgeStatus'),'err', err.message||'Erro IBGE');
+      }
+    }
+    $('#btnMunicipios').addEventListener('click', loadMunicipios);
+    /* ========= NFSe ========= */
+    let nfseData = [], selectedNfse = null, hiddenValues = {};
+    let lastXmlDoc = null;
+    function nsAll(el, name) {
+      if (!el || typeof el.getElementsByTagNameNS !== 'function') return [];
+      return Array.from(el.getElementsByTagNameNS('*', name));
+    }
+    const formatCurrency = v =>
+      new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+    const formatDateTime = s => {
+      if (!s) return '';
+      const d = new Date(s);
+      return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    };
+    const formatDateOnly = s => {
+      if (!s) return '';
+      const d = new Date(s);
+      return d.toLocaleDateString('pt-BR');
+    };
+    function formatCompetencia(raw) {
+      const parts = raw.split('-');
+      if (parts.length >= 2) {
+        const ano = parts[0];
+        const mes = parts[1];
+        return `${mes}/${ano}`;
+      }
+      return raw;
+    }
+    document.getElementById('xmlInput').addEventListener('change', e => {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+      nfseData = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type !== 'text/xml' && !file.name.endsWith('.xml')) continue;
+        const reader = new FileReader();
+        reader.onload = () => {
+          parseXml(reader.result);
+        };
+        reader.readAsText(file, 'UTF-8');
+      }
+    });
+    function parseXml(xmlString) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlString, 'application/xml');
+      lastXmlDoc = doc;
+      const allNfse = nsAll(doc, 'Nfse').filter(el => nsAll(el, 'IdentificacaoNfse').length > 0);
+      allNfse.forEach((nfseEl, idx) => {
+        const idNf = nsAll(nfseEl, 'IdentificacaoNfse')[0];
+        const numero = nsAll(idNf, 'Numero')[0]?.textContent || '';
+        const codVer = nsAll(idNf, 'CodigoVerificacao')[0]?.textContent || '';
+        const dtEmis = nsAll(nfseEl, 'DataEmissao')[0]?.textContent || '';
+        const comp = nsAll(nfseEl, 'Competencia')[0]?.textContent || '';
+        const dtEmisRps = nsAll(nfseEl, 'DataEmissaoRps')[0]?.textContent || '';
+        const regimeEspecial = nsAll(nfseEl, 'RegimeEspecialTributacao')[0]?.textContent || '';
+        const optSim = nsAll(nfseEl, 'OptanteSimplesNacional')[0]?.textContent === '1';
+        const incCul = nsAll(nfseEl, 'IncetivadorCultural')[0]?.textContent === '1';
+        const outrasInfo = nsAll(nfseEl, 'OutrasInformacoes')[0]?.textContent || '';
+        let idRpsNum = '', idRpsSerie = '', idRpsTipo = '';
+        const idRpsEl = nsAll(nfseEl, 'IdentificacaoRps')[0];
+        if (idRpsEl) {
+          idRpsNum = nsAll(idRpsEl, 'Numero')[0]?.textContent || '';
+          idRpsSerie = nsAll(idRpsEl, 'Serie')[0]?.textContent || '';
+          idRpsTipo = nsAll(idRpsEl, 'Tipo')[0]?.textContent || '';
+        }
+        const subEl = nsAll(nfseEl, 'NfseSubstituida')[0];
+        const nfseSub = subEl ? {
+          numero: nsAll(subEl, 'Numero')[0]?.textContent || '',
+          codVer: nsAll(subEl, 'CodigoVerificacao')[0]?.textContent || '',
+          dtEmisRps: dtEmisRps
+        } : null;
+        const srvEl = nsAll(nfseEl, 'Servico')[0];
+        const valEl = nsAll(srvEl, 'Valores')[0];
+        const getNum = tag => parseFloat(nsAll(valEl, tag)[0]?.textContent || '0');
+        const boolOf = tag => nsAll(valEl, tag)[0]?.textContent === '1';
+        const serv = {
+          resumo: nsAll(srvEl, 'Discriminacao')[0]?.textContent || '',
+          itemLista: nsAll(srvEl, 'ItemListaServico')[0]?.textContent || '',
+          cnae: nsAll(srvEl, 'CodigoCnae')[0]?.textContent || '',
+          codigoTrib: nsAll(srvEl, 'CodigoTributacaoMunicipio')[0]?.textContent || '',
+          municipio: nsAll(srvEl, 'MunicipioPrestacaoServico')[0]?.textContent || ''
+        };
+        const vals = {
+          valorServicos: getNum('ValorServicos'),
+          deducoes: getNum('ValorDeducoes'),
+          pis: getNum('ValorPis'),
+          cofins: getNum('ValorCofins'),
+          inss: getNum('ValorInss'),
+          ir: getNum('ValorIr'),
+          csll: getNum('ValorCsll'),
+          issRetido: boolOf('IssRetido'),
+          valorIss: getNum('ValorIss'),
+          outrasRet: getNum('OutrasRetencoes'),
+          baseCalculo: getNum('BaseCalculo'),
+          aliquota: parseFloat(nsAll(valEl, 'Aliquota')[0]?.textContent || '0'),
+          valorLiquido: getNum('ValorLiquidoNfse'),
+          issRetidoVal: getNum('ValorIssRetido'),
+          descontoCond: getNum('DescontoCondicionado'),
+          descontoIncond: getNum('DescontoIncondicionado')
+        };
+        const valorCredito = parseFloat(nsAll(nfseEl, 'ValorCredito')[0]?.textContent || '0');
+        const pEl = nsAll(nfseEl, 'PrestadorServico')[0] || nsAll(nfseEl, 'tcDadosPrestador')[0];
+        const pId = nsAll(pEl, 'IdentificacaoPrestador')[0];
+        const enderecoEl = nsAll(pEl, 'Endereco')[0];
+        const contatoEl = nsAll(pEl, 'Contato')[0];
+        const prest = {
+          razao: nsAll(pEl, 'RazaoSocial')[0]?.textContent || '',
+          nomeFantasia: nsAll(pEl, 'NomeFantasia')[0]?.textContent || '',
+          cnpj: nsAll(pId, 'Cnpj')[0]?.textContent || '',
+          inscrMun: nsAll(pId, 'InscricaoMunicipal')[0]?.textContent || '',
+          end: {
+            rua: nsAll(enderecoEl, 'Endereco')[0]?.textContent || '',
+            num: nsAll(enderecoEl, 'Numero')[0]?.textContent || '',
+            bairro: nsAll(enderecoEl, 'Bairro')[0]?.textContent || '',
+            cidade: nsAll(enderecoEl, 'Cidade')[0]?.textContent || '',
+            uf: nsAll(enderecoEl, 'Estado')[0]?.textContent || '',
+            cep: nsAll(enderecoEl, 'Cep')[0]?.textContent || ''
+          },
+          cont: {
+            tel: nsAll(contatoEl, 'Telefone')[0]?.textContent || '',
+            email: nsAll(contatoEl, 'Email')[0]?.textContent || ''
+          }
+        };
+        const tEl = nsAll(nfseEl, 'TomadorServico')[0] || nsAll(nfseEl, 'tcDadosTomador')[0];
+        const tIdent = nsAll(tEl, 'IdentificacaoTomador')[0];
+        const tCpfCnpj = nsAll(tIdent, 'CpfCnpj')[0];
+        const tEnd = nsAll(tEl, 'Endereco')[0];
+        const tCont = nsAll(tEl, 'Contato')[0];
+        const tom = {
+          razao: nsAll(tEl, 'RazaoSocial')[0]?.textContent || '',
+          cnpj: nsAll(tCpfCnpj, 'Cnpj')[0]?.textContent || '',
+          cpf: nsAll(tCpfCnpj, 'Cpf')[0]?.textContent || '',
+          inscrMun: nsAll(tIdent, 'InscricaoMunicipal')[0]?.textContent || '',
+          end: {
+            rua: nsAll(tEnd, 'Endereco')[0]?.textContent || '',
+            num: nsAll(tEnd, 'Numero')[0]?.textContent || '',
+            bairro: nsAll(tEnd, 'Bairro')[0]?.textContent || '',
+            cidade: nsAll(tEnd, 'Cidade')[0]?.textContent || '',
+            uf: nsAll(tEnd, 'Estado')[0]?.textContent || '',
+            cep: nsAll(tEnd, 'Cep')[0]?.textContent || ''
+          },
+          cont: {
+            tel: nsAll(tCont, 'Telefone')[0]?.textContent || '',
+            email: nsAll(tCont, 'Email')[0]?.textContent || ''
+          }
+        };
+        let inter = null;
+        const iEl = nsAll(nfseEl, 'IntermediarioServico')[0];
+        if (iEl) {
+          inter = {
+            razao: nsAll(iEl, 'RazaoSocial')[0]?.textContent || '',
+            cnpj: nsAll(iEl, 'Cnpj')[0]?.textContent || '',
+            inscrMun: nsAll(iEl, 'InscricaoMunicipal')[0]?.textContent || ''
+          };
+        }
+        let orgao = null;
+        const oEl = nsAll(nfseEl, 'OrgaoGerador')[0];
+        if (oEl) {
+          orgao = {
+            codigoMunicipio: nsAll(oEl, 'CodigoMunicipio')[0]?.textContent || '',
+            uf: nsAll(oEl, 'Uf')[0]?.textContent || ''
+          };
+        }
+        let constr = null;
+        const ccEl = nsAll(nfseEl, 'ConstrucaoCivil')[0];
+        if (ccEl) {
+          constr = {
+            obra: nsAll(ccEl, 'CodigoObra')[0]?.textContent || '',
+            art: nsAll(ccEl, 'Art')[0]?.textContent || ''
+          };
+        }
+        let cancelInfo = null;
+        let canEl = nsAll(nfseEl, 'Cancelamento')[0];
+        if (!canEl) {
+          const wrapper = nfseEl.parentNode;
+          if (wrapper.localName === 'TcNfse') {
+            canEl = nsAll(wrapper, 'Cancelamento')[0];
+          }
+        }
+        if (canEl) {
+          cancelInfo = {
+            data: nsAll(canEl, 'data')[0]?.textContent || '',
+            motivo: nsAll(canEl, 'Motivo')[0]?.textContent || ''
+          };
+        }
+        nfseData.push({
+          id: idx + 1,
+          tipoRegistro: 'nfse',
+          numero, codVer, dtEmis, comp, dtEmisRps, regimeEspecial,
+          optSim, incCul, outrasInfo,
+          idRps: { numero: idRpsNum, serie: idRpsSerie, tipo: idRpsTipo },
+          nfseSub, serv, vals, valorCredito, prest, tom, inter, orgao, constr, cancelInfo
+        });
+      });
+      const msgs = nsAll(doc, 'tcMensagemRetornoLote');
+      msgs.forEach(msgEl => {
+        const irps = nsAll(msgEl, 'IdentificacaoRps')[0];
+        const numero = nsAll(irps, 'Numero')[0]?.textContent || '';
+        const serie = nsAll(irps, 'Serie')[0]?.textContent || '';
+        const tipo = nsAll(irps, 'Tipo')[0]?.textContent || '';
+        const codigo = nsAll(msgEl, 'Codigo')[0]?.textContent || '';
+        const mensagem = nsAll(msgEl, 'Mensagem')[0]?.textContent || '';
+        nfseData.push({
+          id: nfseData.length + 1,
+          tipoRegistro: 'retornoLote',
+          rps: { numero, serie, tipo },
+          alerta: { codigo, mensagem }
+        });
+      });
+      const genericMsgs = nsAll(doc, 'tcMensagemRetorno');
+      genericMsgs.forEach(msgEl => {
+        const codigo = nsAll(msgEl, 'Codigo')[0]?.textContent || '';
+        const mensagem = nsAll(msgEl, 'Mensagem')[0]?.textContent || '';
+        const correcao = nsAll(msgEl, 'Correcao')[0]?.textContent || '';
+        nfseData.push({
+          id: nfseData.length + 1,
+          tipoRegistro: 'retorno',
+          alerta: { codigo, mensagem, correcao }
+        });
+      });
+      const rpsList = nsAll(doc, 'Rps');
+      rpsList.forEach(rpsEl => {
+        const idRps = nsAll(rpsEl, 'IdentificacaoRps')[0];
+        const rNumero = nsAll(idRps, 'Numero')[0]?.textContent || '';
+        const rSerie = nsAll(idRps, 'Serie')[0]?.textContent || '';
+        const rTipo = nsAll(idRps, 'Tipo')[0]?.textContent || '';
+        const dataEmissao = nsAll(rpsEl, 'DataEmissao')[0]?.textContent || '';
+        const naturezaOperacao = nsAll(rpsEl, 'NaturezaOperacao')[0]?.textContent || '';
+        const regimeEspecial = nsAll(rpsEl, 'RegimeEspecialTributacao')[0]?.textContent || '';
+        const optSim = nsAll(rpsEl, 'OptanteSimplesNacional')[0]?.textContent === '1';
+        const incCulRps = nsAll(rpsEl, 'IncetivadorCultural')[0]?.textContent === '1';
+        const status = nsAll(rpsEl, 'Status')[0]?.textContent || '';
+        let rpsSub = null;
+        const sub = nsAll(rpsEl, 'RpsSubstituido')[0];
+        if (sub) {
+          rpsSub = {
+            numero: nsAll(sub, 'Numero')[0]?.textContent || '',
+            serie: nsAll(sub, 'Serie')[0]?.textContent || '',
+            tipo: nsAll(sub, 'Tipo')[0]?.textContent || ''
+          };
+        }
+        const srvEl = nsAll(rpsEl, 'Servico')[0];
+        const valEl = nsAll(srvEl, 'Valores')[0];
+        const getNum = tag => parseFloat(nsAll(valEl, tag)[0]?.textContent || '0');
+        const boolOf = tag => nsAll(valEl, tag)[0]?.textContent === '1';
+        const serv = {
+          resumo: nsAll(srvEl, 'Discriminacao')[0]?.textContent || '',
+          itemLista: nsAll(srvEl, 'ItemListaServico')[0]?.textContent || '',
+          cnae: nsAll(srvEl, 'CodigoCnae')[0]?.textContent || '',
+          codigoTrib: nsAll(srvEl, 'CodigoTributacaoMunicipio')[0]?.textContent || '',
+          municipio: nsAll(srvEl, 'MunicipioPrestacaoServico')[0]?.textContent || ''
+        };
+        const vals = {
+          valorServicos: getNum('ValorServicos'),
+          deducoes: getNum('ValorDeducoes'),
+          pis: getNum('ValorPis'),
+          cofins: getNum('ValorCofins'),
+          inss: getNum('ValorInss'),
+          ir: getNum('ValorIr'),
+          csll: getNum('ValorCsll'),
+          issRetido: boolOf('IssRetido'),
+          valorIss: getNum('ValorIss'),
+          outrasRet: getNum('OutrasRetencoes'),
+          baseCalculo: getNum('BaseCalculo'),
+          aliquota: parseFloat(nsAll(valEl, 'Aliquota')[0]?.textContent || '0'),
+          valorLiquido: getNum('ValorLiquidoNfse'),
+          issRetidoVal: getNum('ValorIssRetido'),
+          descontoCond: getNum('DescontoCondicionado'),
+          descontoIncond: getNum('DescontoIncondicionado')
+        };
+        const pEl = nsAll(rpsEl, 'Prestador')[0] || nsAll(rpsEl, 'tcIdentificacaoPrestador')[0];
+        const pId = nsAll(pEl, 'IdentificacaoPrestador')[0];
+        const prest = {
+          razao: nsAll(pEl, 'RazaoSocial')[0]?.textContent || '',
+          cnpj: nsAll(pId, 'Cnpj')[0]?.textContent || '',
+          inscrMun: nsAll(pId, 'InscricaoMunicipal')[0]?.textContent || ''
+        };
+        const tEl = nsAll(rpsEl, 'Tomador')[0] || nsAll(rpsEl, 'tcDadosTomador')[0];
+        const tIdent = nsAll(tEl, 'IdentificacaoTomador')[0];
+        const tCpfCnpj = nsAll(tIdent, 'CpfCnpj')[0];
+        const tomRps = {
+          razao: nsAll(tEl, 'RazaoSocial')[0]?.textContent || '',
+          cnpj: nsAll(tCpfCnpj, 'Cnpj')[0]?.textContent || '',
+          cpf: nsAll(tCpfCnpj, 'Cpf')[0]?.textContent || '',
+          inscrMun: nsAll(tIdent, 'InscricaoMunicipal')[0]?.textContent || ''
+        };
+        let interRps = null;
+        const iElR = nsAll(rpsEl, 'IntermediarioServico')[0];
+        if (iElR) {
+          interRps = {
+            razao: nsAll(iElR, 'RazaoSocial')[0]?.textContent || '',
+            cnpj: nsAll(iElR, 'Cnpj')[0]?.textContent || '',
+            inscrMun: nsAll(iElR, 'InscricaoMunicipal')[0]?.textContent || ''
+          };
+        }
+        let constrRps = null;
+        const ccElR = nsAll(rpsEl, 'ConstrucaoCivil')[0];
+        if (ccElR) {
+          constrRps = {
+            obra: nsAll(ccElR, 'CodigoObra')[0]?.textContent || '',
+            art: nsAll(ccElR, 'Art')[0]?.textContent || ''
+          };
+        }
+        nfseData.push({
+          id: nfseData.length + 1,
+          tipoRegistro: 'rpsIsolado',
+          rps: { numero: rNumero, serie: rSerie, tipo: rTipo, dataEmissao },
+          naturezaOperacao, regimeEspecial, optSim, incCul: incCulRps, status,
+          rpsSubstituido: rpsSub, serv, vals, prest, tom: tomRps, inter: interRps, constr: constrRps
+        });
+      });
+      nfseData = nfseData.filter((item, idx, arr) => {
+        if (item.tipoRegistro !== 'nfse') return true;
+        const first = arr.findIndex(x => x.tipoRegistro === 'nfse' && x.numero === item.numero);
+        return first === idx;
+      });
+      updateStats();
+      renderNfseList();
+    }
+    function updateStats() {
+      document.getElementById('totalNotas').textContent = nfseData.filter(n => n.tipoRegistro === 'nfse').length;
+      const totalValor = nfseData
+        .filter(n => n.tipoRegistro === 'nfse' && !n.cancelInfo)
+        .reduce((sum, n) => sum + (n.vals?.valorServicos || 0), 0);
+      document.getElementById('totalValor').textContent = formatCurrency(totalValor);
+      const totalIss = nfseData
+        .filter(n => n.tipoRegistro === 'nfse' && !n.cancelInfo)
+        .reduce((sum, n) => sum + (n.vals?.valorIss || 0), 0);
+      document.getElementById('totalIss').textContent = formatCurrency(totalIss);
+    }
+    function renderNode(node) {
+      const table = document.createElement('table');
+      const header = table.insertRow();
+      header.innerHTML = '<th>Tag</th><th>Valor</th>';
+      const children = Array.from(node.childNodes).filter(n => n.nodeType === 1);
+      const textValue = node.textContent.trim();
+      if (children.length === 0 && textValue) {
+        const row = table.insertRow();
+        row.insertCell().textContent = node.nodeName;
+        row.insertCell().textContent = textValue;
+        return table;
+      }
+      children.forEach(child => {
+        const row = table.insertRow();
+        row.insertCell().textContent = child.nodeName;
+        const cell = row.insertCell();
+        if (child.childNodes.length > 1) {
+          cell.appendChild(renderNode(child));
+        } else {
+          cell.textContent = child.textContent.trim();
+        }
+      });
+      return table;
+    }
+    document.body.addEventListener('click', e => {
+      if (e.target.closest('#btn-view-xml')) {
+        const mdl = document.getElementById('xmlModal');
+        const viewer = document.getElementById('xmlViewer');
+        viewer.innerHTML = '';
+        if (lastXmlDoc) viewer.appendChild(renderNode(lastXmlDoc.documentElement));
+        mdl.classList.add('flex');
+      }
+      if (e.target.closest('#btn-close-xml')) {
+        document.getElementById('xmlModal').classList.remove('flex');
+      }
+    });
+    function renderNfseList() {
+      const list = document.getElementById('nfseList');
+      list.innerHTML = '';
+      const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
+      const periodFilter = document.getElementById('periodoFilter').value;
+      const now = new Date();
+      const isSameDay = (d1, d2) => d1.toDateString() === d2.toDateString();
+      const startOfWeek = (() => {
+        const dt = new Date(now);
+        const day = dt.getDay();
+        dt.setDate(dt.getDate() - ((day + 6) % 7));
+        dt.setHours(0, 0, 0, 0);
+        return dt;
+      })();
+      const filtered = nfseData
+        .filter(n => {
+          const text = [
+            n.tipoRegistro === 'nfse' ? n.numero : '',
+            n.prest?.razao || '',
+            n.prest?.cnpj || '',
+            n.tom?.razao || '',
+            n.tom?.cnpj || '',
+            n.tom?.cpf || ''
+          ].join(' ').toLowerCase();
+          return text.includes(searchTerm);
+        })
+        .filter(n => {
+          if (!statusFilter) return true;
+          const cancelled = !!n.cancelInfo;
+          return statusFilter === 'cancelada'
+            ? cancelled
+            : !cancelled;
+        })
+        .filter(n => {
+          if (!periodFilter) return true;
+          if (!n.dtEmis) return false;
+          const emis = new Date(n.dtEmis);
+          if (periodFilter === 'hoje') return isSameDay(emis, now);
+          if (periodFilter === 'semana') return emis >= startOfWeek;
+          if (periodFilter === 'mes') return emis.getMonth() === now.getMonth()
+            && emis.getFullYear() === now.getFullYear();
+          return true;
+        });
+      filtered.forEach(n => {
+        const item = document.createElement('div');
+        let cls = 'nfse-item';
+        if (n.cancelInfo) cls += ' cancelled';
+        if (selectedNfse?.id === n.id) cls += ' selected';
+        item.className = cls;
+        if (n.tipoRegistro === 'retornoLote') {
+          item.innerHTML = `
+          <div class="nfse-header">
+            <div><div class="nfse-number">RPS #${n.rps.numero}</div>
+              <div class="nfse-date">Retorno de Lote</div></div>
+            <div class="nfse-value">${n.alerta.codigo}</div>
+          </div>
+          <div class="nfse-service">${n.alerta.mensagem}</div>`;
+        } else if (n.tipoRegistro === 'retorno') {
+          item.innerHTML = `
+          <div class="nfse-header">
+            <div><div class="nfse-number">Resposta Serviço</div></div>
+          </div>
+          <div class="nfse-service"><strong>Código:</strong> ${n.alerta.codigo}<br/>
+            <strong>Mensagem:</strong> ${n.alerta.mensagem}
+            ${n.alerta.correcao ? '<br/><strong>Correção:</strong> ' + n.alerta.correcao : ''}
+          </div>`;
+        } else if (n.tipoRegistro === 'rpsIsolado') {
+          item.innerHTML = `
+          <div class="nfse-header">
+            <div><div class="nfse-number">RPS #${n.rps.numero}</div>
+              <div class="nfse-date">${formatDateTime(n.rps.dataEmissao)}</div></div>
+          </div>
+          <div class="nfse-service">${n.serv.resumo}</div>`;
+        } else {
+          item.innerHTML = `
+          <div class="nfse-header">
+            <div><div class="nfse-number">#${n.numero}</div>
+              <div class="nfse-date">${formatDateTime(n.dtEmis)}</div></div>
+            <div class="nfse-value">${formatCurrency(n.vals.valorLiquido)}</div>
+          </div>
+          <div class="nfse-client">${n.prest.razao}</div>
+          <div class="nfse-service">${n.serv.resumo}</div>
+          <div class="nfse-badges">
+            ${n.cancelInfo ? '<span class="badge badge-cancelled">CANCELADA</span>' : ''}
+            ${n.vals.issRetido ? '<span class="badge badge-iss">ISS RETIDO</span>' : ''}
+            ${n.optSim ? '<span class="badge badge-simples">SIMPLES</span>' : ''}
+            ${n.inter ? '<span class="badge badge-extra">INTERMEDIÁRIO</span>' : ''}
+          </div>`;
+        }
+        item.addEventListener('click', () => selectNfse(n));
+        list.appendChild(item);
+      });
+      lucide.createIcons();
+    }
+    function selectNfse(n) {
+      selectedNfse = n;
+      renderNfseList();
+      renderNfseDetail(n);
+    }
+    function toggleSection(id) {
+      const c = document.getElementById(id + '-content');
+      const ic = document.getElementById(id + '-icon');
+      c.classList.toggle('expanded');
+      ic.setAttribute('data-lucide', c.classList.contains('expanded') ? 'chevron-down' : 'chevron-right');
+      lucide.createIcons();
+    }
+    function createValueItem(label, val, isCurr = false, extra = '') {
+        const key = label + val, hid = hiddenValues[key];
+        const disp = hid ? '••••••' : (isCurr ? formatCurrency(val) : val);
+        return `
+            <div class="value-item" style="${extra}">
+            <span class="value-label" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${label}:</span>
+            <div class="value-controls">
+                <span class="value-amount ${hid ? 'hidden-value' : ''}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${disp}</span>
+                <button class="hide-btn" onclick="hiddenValues['${key}']=!hiddenValues['${key}'];renderNfseDetail(selectedNfse)">
+                <i data-lucide="${hid ? 'eye-off' : 'eye'}" size="14"></i>
+                </button>
+            </div>
+            </div>`;
+    }
+    function createInfoItem(label, val) {
+      return `
+        <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f1f5f9">
+          <span style="color:#64748b;font-size:0.875rem">${label}:</span>
+          <span style="font-weight:500">${val || '—'}</span>
+        </div>`;
+    }
+    function renderNfseDetail(n) {
+      const empty = document.getElementById('emptyState');
+      const detail = document.getElementById('nfseDetail');
+      if (n.tipoRegistro === 'retornoLote') {
+        empty.style.display = 'none';
+        detail.style.display = 'block';
+        detail.innerHTML = `
+          <div class="detail-header">
+            <div class="detail-title">
+              <div><div class="detail-number">Retorno Lote RPS #${n.rps.numero}</div>
+                <div class="detail-date">Código: ${n.alerta.codigo}</div></div>
+            </div>
+          </div>
+          <div style="padding:1rem"><p>${n.alerta.mensagem}</p></div>`;
+        return;
+      }
+      if (n.tipoRegistro === 'retorno') {
+        empty.style.display = 'none';
+        detail.style.display = 'block';
+        detail.innerHTML = `
+          <div class="detail-header">
+            <div class="detail-title"><div class="detail-number">Resposta Serviço</div></div>
+            <button id="btn-view-xml" class="ml-4 p-2 bg-white rounded shadow hover:bg-gray-100" title="Ver XML"><i data-lucide="file-text" size="16"></i></button>
+          </div>
+          <div style="padding:1rem">
+            <p><strong>Código:</strong> ${n.alerta.codigo}</p>
+            <p><strong>Mensagem:</strong> ${n.alerta.mensagem}</p>
+            ${n.alerta.correcao ? `<p><strong>Correção:</strong> ${n.alerta.correcao}</p>` : ''}
+          </div>`;
+        return;
+      }
+      if (n.tipoRegistro === 'rpsIsolado') {
+        empty.style.display = 'none';
+        detail.style.display = 'block';
+        detail.innerHTML = `
+          <div class="detail-header">
+            <div class="detail-title">
+              <div><div class="detail-number">RPS #${n.rps.numero}</div>
+                <div class="detail-date">Emitido em ${formatDateTime(n.rps.dataEmissao)}</div></div>
+            </div>
+          </div>`;
+        return;
+      }
+      empty.style.display = 'none';
+      detail.style.display = 'block';
+      detail.innerHTML = `
+      <div class="detail-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+        <div class="detail-title">
+          <div class="detail-number">NFSe #${n.numero}</div>
+          <div class="detail-date">Emitida em ${formatDateTime(n.dtEmis)}</div>
+          ${n.cancelInfo ? `
+            <div class="alert-cancelled" style="margin-top: 0.75rem; padding: 0.5rem 1rem; background: rgba(255,255,255); border: 1px solid rgba(239,68,68,0.4); border-radius: 0.5rem; color: #dc2626; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="alert-circle" size="16"></i>
+              CANCELADA em ${formatDateTime(n.cancelInfo.data)} – ${n.cancelInfo.motivo}
+            </div>` : ''}
+        </div>
+        <button id="btn-view-xml" class="p-2 bg-blue-400 hover:bg-blue-200 rounded shadow mt-2" title="Ver XML">
+          <i data-lucide="file-text" size="16"></i>
+        </button>
+      </div>
+        <div class="quick-stats">
+          <div class="quick-stat"><div class="quick-stat-value">${formatCurrency(n.vals.valorServicos)}</div><div class="quick-stat-label">Valor Bruto</div></div>
+          <div class="quick-stat"><div class="quick-stat-value" style="color:#dc2626">${formatCurrency(n.vals.valorIss)}</div><div class="quick-stat-label">ISS</div></div>
+          <div class="quick-stat"><div class="quick-stat-value" style="color:#d97706">${(n.vals.aliquota).toFixed(2)}%</div><div class="quick-stat-label">Alíquota</div></div>
+          <div class="quick-stat"><div class="quick-stat-value">${formatCompetencia(n.comp)}</div><div class="quick-stat-label">Competência</div></div>
+        </div>
+        <div class="sections">
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('valores')">
+              <div class="section-title"><i data-lucide="calculator" size="18"></i><span>Valores & Tributos</span><span class="badge badge-extra">Detalhado</span></div>
+              <i data-lucide="chevron-down" size="18" id="valores-icon"></i>
+            </button>
+            <div class="section-content expanded" id="valores-content">
+              <div class="values-grid">
+                <div>
+                  ${createValueItem('Serviços', n.vals.valorServicos, true)}
+                  ${createValueItem('Base Cálculo', n.vals.baseCalculo, true)}
+                  ${createValueItem('Alíquota ISS', (n.vals.aliquota).toFixed(2) + '%')}
+                  ${createValueItem('ISS devidos', n.vals.valorIss, true)}
+                  ${createValueItem('ISS Retido', n.vals.issRetidoVal, true)}
+                  ${createValueItem('Líquido', n.vals.valorLiquido, true, 'font-weight:700;border-top:1px solid #e2e8f0;padding-top:0.5rem;')}
+                </div>
+                <div>
+                  ${['deducoes', 'pis', 'cofins', 'inss', 'ir', 'csll', 'outrasRet', 'descontoCond', 'descontoIncond']
+          .map(k => createValueItem(k.charAt(0).toUpperCase() + k.slice(1), n.vals[k], true))
+          .join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('prestador')">
+              <div class="section-title"><i data-lucide="building" size="18"></i><span>Prestador</span></div>
+              <i data-lucide="chevron-right" size="18" id="prestador-icon"></i>
+            </button>
+            <div class="section-content" id="prestador-content">
+              ${createInfoItem('Razão Social', n.prest.razao)}
+              ${createInfoItem('CNPJ', n.prest.cnpj)}
+              ${createInfoItem('Inscr. Municipal', n.prest.inscrMun)}
+              ${createInfoItem('Endereço', `${n.prest.end.rua}, ${n.prest.end.num}`)}
+              ${createInfoItem('Bairro', n.prest.end.bairro)}
+              ${createInfoItem('Cidade/UF', `${n.prest.end.cidade}/${n.prest.end.uf}`)}
+              ${createInfoItem('CEP', n.prest.end.cep)}
+              ${createInfoItem('Telefone', n.prest.cont.tel)}
+              ${createInfoItem('Email', n.prest.cont.email)}
+            </div>
+          </div>
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('tomador')">
+              <div class="section-title"><i data-lucide="user" size="18"></i><span>Tomador</span></div>
+              <i data-lucide="chevron-right" size="18" id="tomador-icon"></i>
+            </button>
+            <div class="section-content" id="tomador-content">
+              ${createInfoItem('Razão Social', n.tom.razao)}
+              ${createInfoItem('CPF/CNPJ', n.tom.cnpj || n.tom.cpf)}
+              ${createInfoItem('Inscr. Municipal', n.tom.inscrMun)}
+              ${createInfoItem('Endereço', `${n.tom.end.rua}, ${n.tom.end.num}`)}
+              ${createInfoItem('Bairro', n.tom.end.bairro)}
+              ${createInfoItem('Cidade', n.tom.end.cidade)}
+              ${createInfoItem('UF', n.tom.end.uf)}
+              ${createInfoItem('CEP', n.tom.end.cep)}
+              ${createInfoItem('Telefone', n.tom.cont.tel)}
+              ${createInfoItem('Email', n.tom.cont.email)}
+            </div>
+          </div>
+          ${n.inter ? `
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('intermediario')">
+              <div class="section-title"><i data-lucide="share" size="18"></i><span>Intermediário</span></div>
+              <i data-lucide="chevron-right" size="18" id="intermediario-icon"></i>
+            </button>
+            <div class="section-content" id="intermediario-content">
+              ${createInfoItem('Razão Social', n.inter.razao)}
+              ${createInfoItem('CNPJ', n.inter.cnpj)}
+              ${createInfoItem('Inscr. Municipal', n.inter.inscrMun)}
+            </div>
+          </div>`: ''}
+          ${n.orgao ? `
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('orgao')">
+              <div class="section-title"><i data-lucide="home" size="18"></i><span>Órgão Gerador</span></div>
+              <i data-lucide="chevron-right" size="18" id="orgao-icon"></i>
+            </button>
+            <div class="section-content" id="orgao-content">
+              ${createInfoItem('Município (IBGE)', n.orgao.codigoMunicipio)}
+              ${createInfoItem('UF', n.orgao.uf)}
+            </div>
+          </div>`: ''}
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('servico')">
+              <div class="section-title"><i data-lucide="file-text" size="18"></i><span>Dados do Serviço</span></div>
+              <i data-lucide="chevron-right" size="18" id="servico-icon"></i>
+            </button>
+            <div class="section-content" id="servico-content">
+              <div style="background:#dbeafe;padding:1rem;border-radius:0.375rem;margin-bottom:1rem">
+                <p style="color:#1e40af">${n.serv.resumo}</p>
+              </div>
+              ${createInfoItem('Item Lista', n.serv.itemLista)}
+              ${createInfoItem('Código CNAE', `${n.serv.itemLista.slice(0, 2)}.${n.serv.itemLista.slice(2)} / ${n.serv.codigoTrib}`)}
+              ${createInfoItem('Cod. Trib.', n.serv.codigoTrib)}
+              ${createInfoItem('Município', n.serv.municipio)}
+            </div>
+          </div>
+          ${n.nfseSub ? `
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('substituida')">
+              <div class="section-title"><i data-lucide="rotate-ccw" size="18"></i><span>NFS-e Substituída</span></div>
+              <i data-lucide="chevron-right" size="18" id="substituida-icon"></i>
+            </button>
+            <div class="section-content" id="substituida-content">
+              ${createInfoItem('Número', n.nfseSub.numero)}
+              ${createInfoItem('Verificação', n.nfseSub.codVer)}
+              ${createInfoItem('Emitida em (RPS)', formatDateOnly(n.dtEmisRps))}
+            </div>
+          </div>`: ''}
+          ${n.outrasInfo ? `
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('outrasInfo')">
+              <div class="section-title"><i data-lucide="info" size="18"></i><span>Outras Informações</span></div>
+              <i data-lucide="chevron-right" size="18" id="outrasInfo-icon"></i>
+            </button>
+            <div class="section-content" id="outrasInfo-content"><p>${n.outrasInfo}</p></div>
+          </div>`: ''}
+          ${n.valorCredito ? `
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('credito')">
+              <div class="section-title"><i data-lucide="dollar-sign" size="18"></i><span>Valor de Crédito</span></div>
+              <i data-lucide="chevron-right" size="18" id="credito-icon"></i>
+            </button>
+            <div class="section-content" id="credito-content">${createInfoItem('Valor Crédito', formatCurrency(n.valorCredito))}</div>
+          </div>`: ''}
+          ${n.constr ? `
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('constr')">
+              <div class="section-title"><i data-lucide="hard-hat" size="18"></i><span>Construção Civil</span></div>
+              <i data-lucide="chevron-right" size="18" id="constr-icon"></i>
+            </button>
+            <div class="section-content" id="constr-content">
+              ${createInfoItem('Código Obra', n.constr.obra)}
+              ${createInfoItem('ART', n.constr.art)}
+            </div>
+          </div>`: ''}
+        </div>`;
+      lucide.createIcons();
+    }
+    document.getElementById('searchInput').addEventListener('input', renderNfseList);
+    document.getElementById('periodoFilter').addEventListener('change', renderNfseList);
+    document.getElementById('statusFilter').addEventListener('change', renderNfseList);
+    /* ========= boot ========= */
+    loadUFs();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
