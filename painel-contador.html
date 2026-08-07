@@ -707,6 +707,36 @@
       flex: 1;
       min-width: 250px;
     }
+    #nfse .import-box {
+      flex: 1 0 100%;
+    }
+    #nfse .xml-drop-zone {
+      border: 2px dashed #94a3b8;
+      border-radius: 0.75rem;
+      background: #f8fafc;
+      padding: 1rem;
+      min-height: 108px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      text-align: center;
+      cursor: pointer;
+      color: #475569;
+      transition: border-color .2s, background-color .2s, transform .2s;
+    }
+    #nfse .xml-drop-zone:hover,
+    #nfse .xml-drop-zone.dragover {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+    #nfse .xml-drop-zone.dragover { transform: scale(1.01); }
+    #nfse .xml-drop-zone i { font-size: 1.5rem; color: #2563eb; }
+    #nfse .xml-drop-zone strong { color: #1e3a8a; font-size: .9rem; }
+    #nfse .xml-drop-zone span { font-size: .78rem; }
+    #nfse .xml-drop-zone small { font-size: .7rem; color: #64748b; }
+    #nfse .filter-select { min-width: 145px; }
     #nfse .nfse-list {
       padding: 0;
     }
@@ -984,7 +1014,39 @@
       background: #eee;
       text-align: left;
     }
-  </style>
+  
+
+    /* ===== Ajustes visuais NFSe: alinhamento dos topos e aba ===== */
+    #nfse .sidebar {
+      border-radius: 0.85rem 0.85rem 0 0;
+      overflow: hidden;
+    }
+    #nfse .header {
+      border-radius: 0.85rem 0.85rem 0 0;
+    }
+    #nfse .main-content {
+      padding-top: 0;
+    }
+    #nfse .nfse-detail {
+      margin: 0 1rem 1rem 1rem;
+      border-radius: 0.85rem 0.85rem 0.5rem 0.5rem;
+    }
+    #nfse .detail-header {
+      border-radius: 0.85rem 0.85rem 0 0;
+    }
+    #appTabs #nfse-tab {
+      position: relative;
+      z-index: 2;
+      border: 1px solid #dee2e6 !important;
+      border-bottom-color: #dee2e6 !important;
+      border-radius: 0.6rem !important;
+      background: #fff;
+    }
+    #appTabs #nfse-tab.active {
+      border-bottom-color: #dee2e6 !important;
+      background: #fff !important;
+    }
+</style>
 </head>
 <body>
   <!-- Cabeçalho idêntico ao index.html -->
@@ -1251,21 +1313,34 @@
                   </div>
                 </div>
                 <div class="filters">
-                  <div class="filter-group"><label>Importar XML</label><input type="file" id="xmlInput" accept=".xml" multiple /></div>
-                  <div class="filter-group search-box"><label>Buscar</label><input type="text" id="searchInput" placeholder="Número, cliente, CNPJ..." /></div>
-                  <div class="filter-group"><label>Período</label>
-                    <select id="periodoFilter">
-                      <option value="">Todos</option>
-                      <option value="hoje">Hoje</option>
-                      <option value="semana">Esta Semana</option>
-                      <option value="mes">Este Mês</option>
-                    </select>
+                  <div class="filter-group import-box">
+                    <label>Importar XML</label>
+                    <div class="xml-drop-zone" id="xmlDropZone" role="button" tabindex="0" aria-label="Selecionar ou arrastar arquivos XML">
+                      <i class="bi bi-cloud-arrow-up"></i>
+                      <strong>Arraste e solte os XMLs aqui</strong>
+                      <span>ou clique para selecionar vários arquivos</span>
+                      <small id="xmlDropStatus">Nenhum arquivo carregado</small>
+                    </div>
+                    <input type="file" id="xmlInput" accept=".xml,text/xml,application/xml" multiple hidden />
                   </div>
-                  <div class="filter-group"><label>Status</label>
+                  <div class="filter-group search-box"><label>Buscar</label><input type="text" id="searchInput" placeholder="Número, cliente, CNPJ, chave, serviço..." /></div>
+                  <div class="filter-group filter-select"><label>Competência</label>
+                    <select id="competenciaFilter"><option value="">Todas</option></select>
+                  </div>
+                  <div class="filter-group filter-select"><label>Status</label>
                     <select id="statusFilter">
                       <option value="">Todos</option>
                       <option value="normal">Normal</option>
                       <option value="cancelada">Cancelada</option>
+                    </select>
+                  </div>
+                  <div class="filter-group filter-select"><label>Retenções</label>
+                    <select id="retencaoFilter">
+                      <option value="">Todas</option>
+                      <option value="com">Com retenção</option>
+                      <option value="iss">ISS retido</option>
+                      <option value="federal">Retenções federais</option>
+                      <option value="sem">Sem retenção</option>
                     </select>
                   </div>
                 </div>
@@ -1615,44 +1690,479 @@
       new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
     const formatDateTime = s => {
       if (!s) return '';
-      const d = new Date(s);
-      return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const raw = String(s).trim();
+      const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?)?/);
+      if (m) return `${m[3]}/${m[2]}/${m[1]}${m[4] ? ` ${m[4]}:${m[5]}` : ''}`;
+      const d = new Date(raw);
+      return Number.isNaN(d.getTime()) ? raw : d.toLocaleString('pt-BR');
     };
     const formatDateOnly = s => {
       if (!s) return '';
-      const d = new Date(s);
-      return d.toLocaleDateString('pt-BR');
+      const raw = String(s).trim();
+      const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+      const d = new Date(raw);
+      return Number.isNaN(d.getTime()) ? raw : d.toLocaleDateString('pt-BR');
     };
     function formatCompetencia(raw) {
-      const parts = raw.split('-');
-      if (parts.length >= 2) {
-        const ano = parts[0];
-        const mes = parts[1];
-        return `${mes}/${ano}`;
-      }
-      return raw;
+      if (!raw) return '';
+      const m = String(raw).trim().match(/^(\d{4})-(\d{2})/);
+      return m ? `${m[2]}/${m[1]}` : raw;
     }
-    document.getElementById('xmlInput').addEventListener('change', e => {
-      const files = e.target.files;
-      if (!files || files.length === 0) return;
-      nfseData = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.type !== 'text/xml' && !file.name.endsWith('.xml')) continue;
-        const reader = new FileReader();
-        reader.onload = () => {
-          parseXml(reader.result);
-        };
-        reader.readAsText(file, 'UTF-8');
+
+    /* ===== Compatibilidade NFS-e Padrão Nacional / SPED ===== */
+    function nfseLocalChildren(node, name) {
+      if (!node || !node.children) return [];
+      return Array.from(node.children).filter(el => el.localName === name);
+    }
+    function nfseLocalChild(node, name) {
+      return nfseLocalChildren(node, name)[0] || null;
+    }
+    function nfseLocalDesc(node, name) {
+      if (!node || typeof node.getElementsByTagName !== 'function') return null;
+      return Array.from(node.getElementsByTagName('*')).find(el => el.localName === name) || null;
+    }
+    function nfseNodeText(node) {
+      return node ? String(node.textContent || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim() : '';
+    }
+    function nfseDirect(node, name) {
+      return nfseNodeText(nfseLocalChild(node, name));
+    }
+    function nfseDescText(node, name) {
+      return nfseNodeText(nfseLocalDesc(node, name));
+    }
+    function nfseFirst(...values) {
+      return values.find(v => String(v ?? '').trim() !== '') || '';
+    }
+    function nfseNumber(value) {
+      const n = parseFloat(String(value ?? '').replace(',', '.'));
+      return Number.isFinite(n) ? n : 0;
+    }
+    function nfseDigits(value) {
+      return String(value ?? '').replace(/\D/g, '');
+    }
+    const nfseNationalStatus = {
+      '100': 'NFS-e gerada',
+      '101': 'NFS-e de substituição gerada',
+      '102': 'NFS-e de decisão administrativa/judicial',
+      '103': 'NFS-e avulsa',
+      '107': 'NFS-e MEI',
+      '108': 'Nota de crédito',
+      '109': 'Nota de débito'
+    };
+    const nfseCityCatalog = {
+      '2304400': ['Fortaleza', 'CE'], '2304285': ['Eusébio', 'CE'], '2307650': ['Maracanaú', 'CE'],
+      '2305233': ['Horizonte', 'CE'], '2504009': ['Campina Grande', 'PB'], '2611606': ['Recife', 'PE'],
+      '3106200': ['Belo Horizonte', 'MG'], '3170206': ['Uberlândia', 'MG'], '3304557': ['Rio de Janeiro', 'RJ'],
+      '3550308': ['São Paulo', 'SP'], '4205407': ['Florianópolis', 'SC'], '4307005': ['Erechim', 'RS'],
+      '5300108': ['Brasília', 'DF']
+    };
+    const nfseIbgeUf = {
+      '11':'RO','12':'AC','13':'AM','14':'RR','15':'PA','16':'AP','17':'TO','21':'MA','22':'PI','23':'CE','24':'RN','25':'PB','26':'PE','27':'AL','28':'SE','29':'BA',
+      '31':'MG','32':'ES','33':'RJ','35':'SP','41':'PR','42':'SC','43':'RS','50':'MS','51':'MT','52':'GO','53':'DF'
+    };
+    function nfseUfFromMunicipio(code) {
+      const c = nfseDigits(code);
+      return (nfseCityCatalog[c]?.[1]) || nfseIbgeUf[c.slice(0, 2)] || '';
+    }
+    function nfseCityFromMunicipio(code) {
+      const c = nfseDigits(code);
+      return nfseCityCatalog[c]?.[0] || c;
+    }
+    function nfseMunicipioLabel(value, uf = '') {
+      const raw = String(value ?? '').trim();
+      if (!raw) return uf || '';
+      const isCode = /^\d{7}$/.test(raw);
+      const city = isCode ? nfseCityFromMunicipio(raw) : raw;
+      const state = uf || (isCode ? nfseUfFromMunicipio(raw) : '');
+      return [city, state].filter(Boolean).join('/');
+    }
+    function nfseNationalParty(node, options = {}) {
+      if (!node) return {
+        razao:'', nomeFantasia:'', cnpj:'', cpf:'', inscrMun:'',
+        end:{rua:'', num:'', bairro:'', cidade:'', uf:'', cep:''}, cont:{tel:'', email:''}
+      };
+      const end = nfseLocalChild(node, 'enderNac') || nfseLocalChild(node, 'end') || nfseLocalDesc(node, 'enderNac') || nfseLocalDesc(node, 'endExt');
+      const endNac = nfseLocalChild(end, 'endNac') || end;
+      const cityCode = nfseFirst(nfseDirect(endNac, 'cMun'), nfseDirect(end, 'cMun'), options.cityCode);
+      const cityName = nfseFirst(nfseDirect(end, 'xMun'), nfseDirect(endNac, 'xMun'), options.cityName, nfseCityFromMunicipio(cityCode));
+      const uf = nfseFirst(nfseDirect(end, 'UF'), nfseDirect(endNac, 'UF'), options.uf, nfseUfFromMunicipio(cityCode));
+      return {
+        razao: nfseFirst(nfseDirect(node, 'xNome'), nfseDescText(node, 'xNome')),
+        nomeFantasia: nfseFirst(nfseDirect(node, 'xFant'), nfseDescText(node, 'xFant')),
+        cnpj: nfseFirst(nfseDirect(node, 'CNPJ'), nfseDescText(node, 'CNPJ')),
+        cpf: nfseFirst(nfseDirect(node, 'CPF'), nfseDescText(node, 'CPF')),
+        inscrMun: nfseFirst(nfseDirect(node, 'IM'), nfseDescText(node, 'IM')),
+        end: {
+          rua: nfseFirst(nfseDirect(end, 'xLgr'), nfseDirect(endNac, 'xLgr')),
+          num: nfseFirst(nfseDirect(end, 'nro'), nfseDirect(endNac, 'nro')),
+          bairro: nfseFirst(nfseDirect(end, 'xBairro'), nfseDirect(endNac, 'xBairro')),
+          cidade: cityName,
+          uf,
+          cep: nfseFirst(nfseDirect(endNac, 'CEP'), nfseDirect(end, 'CEP'))
+        },
+        cont: {
+          tel: nfseFirst(nfseDirect(node, 'fone'), nfseDescText(node, 'fone')),
+          email: nfseFirst(nfseDirect(node, 'email'), nfseDescText(node, 'email'))
+        }
+      };
+    }
+    function nfseMergeParty(primary, secondary) {
+      if (!secondary) return primary;
+      const fill = (obj, src, keys) => keys.forEach(k => { if (!obj[k] && src[k]) obj[k] = src[k]; });
+      fill(primary, secondary, ['razao','nomeFantasia','cnpj','cpf','inscrMun']);
+      fill(primary.end, secondary.end || {}, ['rua','num','bairro','cidade','uf','cep']);
+      fill(primary.cont, secondary.cont || {}, ['tel','email']);
+      return primary;
+    }
+    function parseNfseNacionalDoc(doc, sourceFile = '') {
+      const inf = nfseLocalDesc(doc, 'infNFSe');
+      if (!inf) return;
+      const dps = nfseLocalDesc(inf, 'infDPS');
+      const emit = nfseLocalChild(inf, 'emit');
+      const prestDps = nfseLocalChild(dps, 'prest');
+      const toma = nfseLocalChild(dps, 'toma');
+      const intermEl = nfseLocalChild(dps, 'interm') || nfseLocalChild(dps, 'intermediario');
+      const servEl = nfseLocalChild(dps, 'serv');
+      const cServ = nfseLocalChild(servEl, 'cServ');
+      const locPrest = nfseLocalChild(servEl, 'locPrest');
+      const outerVals = nfseLocalChild(inf, 'valores');
+      const dpsVals = nfseLocalChild(dps, 'valores');
+      const vServPrest = nfseLocalChild(dpsVals, 'vServPrest');
+      const discounts = nfseLocalChild(dpsVals, 'vDescCondIncond');
+      const vDedRed = nfseLocalChild(dpsVals, 'vDedRed');
+      const trib = nfseLocalChild(dpsVals, 'trib');
+      const tribMun = nfseLocalChild(trib, 'tribMun');
+      const tribFed = nfseLocalChild(trib, 'tribFed');
+      const piscofins = nfseLocalChild(tribFed, 'piscofins');
+      const totTrib = nfseLocalChild(trib, 'totTrib');
+      const vTotTrib = nfseLocalChild(totTrib, 'vTotTrib');
+      const pTotTrib = nfseLocalChild(totTrib, 'pTotTrib');
+      const regTrib = nfseLocalChild(prestDps, 'regTrib');
+      const cLocEmi = nfseFirst(nfseDirect(dps, 'cLocEmi'), nfseDirect(inf, 'cLocEmi'));
+      const cLocPrest = nfseDirect(locPrest, 'cLocPrestacao');
+      const cLocIncid = nfseDirect(inf, 'cLocIncid');
+      const prestFromEmit = nfseNationalParty(emit, {cityCode:cLocEmi, cityName:nfseDirect(inf, 'xLocEmi'), uf:nfseUfFromMunicipio(cLocEmi)});
+      const prestFromDps = nfseNationalParty(prestDps, {cityCode:cLocEmi, cityName:nfseDirect(inf, 'xLocEmi'), uf:nfseUfFromMunicipio(cLocEmi)});
+      const prest = nfseMergeParty(prestFromEmit, prestFromDps);
+      const tom = nfseNationalParty(toma);
+      const interParty = nfseNationalParty(intermEl);
+      const inter = intermEl ? {razao:interParty.razao, cnpj:interParty.cnpj || interParty.cpf, inscrMun:interParty.inscrMun} : null;
+      const cTribNac = nfseDirect(cServ, 'cTribNac');
+      const cTribMun = nfseDirect(cServ, 'cTribMun');
+      const xTribNac = nfseDirect(inf, 'xTribNac');
+      const xTribMun = nfseDirect(inf, 'xTribMun');
+      const vServ = nfseNumber(nfseDirect(vServPrest, 'vServ'));
+      const rawVLiq = nfseDirect(outerVals, 'vLiq');
+      const vLiq = rawVLiq !== '' ? nfseNumber(rawVLiq) : vServ;
+      const vIss = nfseNumber(nfseDirect(outerVals, 'vISSQN'));
+      const vBC = nfseNumber(nfseDirect(outerVals, 'vBC'));
+      const aliquota = nfseNumber(nfseFirst(nfseDirect(outerVals, 'pAliqAplic'), nfseDirect(tribMun, 'pAliq')));
+      const tpRetIss = nfseDirect(tribMun, 'tpRetISSQN');
+      const issRetido = tpRetIss === '2' || tpRetIss === '3';
+      const vPis = nfseNumber(nfseDirect(piscofins, 'vPis'));
+      const vCofins = nfseNumber(nfseDirect(piscofins, 'vCofins'));
+      const vCsll = nfseNumber(nfseDirect(tribFed, 'vRetCSLL'));
+      const vIr = nfseNumber(nfseDirect(tribFed, 'vRetIRRF'));
+      const vCp = nfseNumber(nfseDirect(tribFed, 'vRetCP'));
+      const tpRetPisCofins = nfseDirect(piscofins, 'tpRetPisCofins');
+      const contribuicoesSociaisRetidas = tpRetPisCofins === '1' ? vCsll + vPis + vCofins : vCsll;
+      const totalRetencoesFederais = vIr + vCp + contribuicoesSociaisRetidas;
+      const calcBM = nfseFirst(nfseDirect(vDedRed, 'vCalcBM'), nfseDirect(outerVals, 'vCalcBM'), nfseDirect(tribMun, 'vCalcBM'));
+      const beneficioMunicipal = nfseFirst(nfseDirect(outerVals, 'tpBM'), nfseDirect(tribMun, 'BM'), nfseDirect(tribMun, 'nBM'));
+      const paisResultado = nfseFirst(nfseDirect(tribMun, 'xPaisResult'), nfseDirect(tribMun, 'cPaisResult'), nfseDirect(servEl, 'xPaisResult'), nfseDirect(servEl, 'cPaisResult'));
+      const paisPrestacao = nfseFirst(nfseDirect(locPrest, 'xPaisPrestacao'), nfseDirect(locPrest, 'cPaisPrestacao'));
+      const aprox = {
+        federalValor: nfseDirect(vTotTrib, 'vTotTribFed'),
+        estadualValor: nfseDirect(vTotTrib, 'vTotTribEst'),
+        municipalValor: nfseDirect(vTotTrib, 'vTotTribMun'),
+        federalPercentual: nfseDirect(pTotTrib, 'pTotTribFed'),
+        estadualPercentual: nfseDirect(pTotTrib, 'pTotTribEst'),
+        municipalPercentual: nfseDirect(pTotTrib, 'pTotTribMun')
+      };
+      const vals = {
+        valorServicos: vServ,
+        deducoes: nfseNumber(nfseFirst(nfseDirect(vDedRed, 'vDR'), nfseDirect(outerVals, 'vCalcDR'))),
+        pis: vPis,
+        cofins: vCofins,
+        inss: vCp,
+        ir: vIr,
+        csll: vCsll,
+        contribuicoesSociaisRetidas,
+        retFederais: totalRetencoesFederais,
+        issRetido,
+        valorIss: vIss,
+        outrasRet: 0,
+        baseCalculo: vBC,
+        aliquota,
+        valorLiquido: vLiq,
+        issRetidoVal: issRetido ? vIss : 0,
+        descontoCond: nfseNumber(nfseDirect(discounts, 'vDescCond')),
+        descontoIncond: nfseNumber(nfseDirect(discounts, 'vDescIncond'))
+      };
+      const serv = {
+        resumo: nfseFirst(nfseDirect(cServ, 'xDescServ'), xTribNac, xTribMun),
+        itemLista: cTribNac,
+        cnae: nfseFirst(nfseDirect(cServ, 'cNBS'), nfseDirect(inf, 'cNBS')),
+        codigoTrib: nfseFirst(cTribMun, cTribNac),
+        municipio: nfseFirst(nfseDirect(inf, 'xLocPrestacao'), nfseCityFromMunicipio(cLocPrest)),
+        descricaoTribNac: xTribNac,
+        descricaoTribMun: xTribMun,
+        nbs: nfseFirst(nfseDirect(cServ, 'cNBS'), nfseDirect(inf, 'cNBS')),
+        descricaoNbs: nfseDirect(inf, 'xNBS'),
+        localPrestacao: nfseFirst(nfseDirect(inf, 'xLocPrestacao'), nfseCityFromMunicipio(cLocPrest))
+      };
+      const infoCompl = nfseLocalChild(servEl, 'infoCompl');
+      const extras = [];
+      const addExtra = (label, value) => { if (value) extras.push(`${label}${value}`); };
+      addExtra('', nfseDirect(infoCompl, 'xInfComp'));
+      addExtra('Documento ref.: ', nfseDirect(infoCompl, 'docRef'));
+      addExtra('', nfseDirect(infoCompl, 'xOutInf'));
+      const subst = nfseLocalChild(dps, 'subst');
+      const chaveSub = nfseDirect(subst, 'chSubstda');
+      const obra = nfseLocalChild(servEl, 'obra');
+      const codigoObra = nfseDirect(obra, 'cObra');
+      const inscImob = nfseDirect(obra, 'inscImobFisc');
+      const opSN = nfseDirect(regTrib, 'opSimpNac');
+      const regEsp = nfseDirect(regTrib, 'regEspTrib');
+      const tribIss = nfseDirect(tribMun, 'tribISSQN');
+      const opSNDesc = ({'1':'Não optante','2':'Optante - Microempreendedor Individual (MEI)','3':'Optante - Microempresa ou Empresa de Pequeno Porte (ME/EPP)'})[opSN] || (opSN ? `Código ${opSN}` : '');
+      const regEspDesc = ({'0':'Nenhum','1':'Microempresa municipal','2':'Estimativa','3':'Sociedade de profissionais','4':'Cooperativa','5':'Microempreendedor Individual (MEI)','6':'Sociedade de Profissionais'})[regEsp] || (regEsp ? `Código ${regEsp}` : '');
+      const tribIssDesc = ({'1':'Operação Tributável','2':'Imunidade','3':'Exportação de Serviço','4':'Não incidência'})[tribIss] || (tribIss ? `Código ${tribIss}` : '');
+      const retIssDesc = ({'1':'Não Retido','2':'Retido pelo Tomador','3':'Retido pelo Intermediário'})[tpRetIss] || (tpRetIss ? `Código ${tpRetIss}` : '');
+      const retPisCofinsDesc = ({'0':'PIS/COFINS/CSLL não retidos','1':'PIS/COFINS/CSLL retidos','2':'PIS/COFINS não retidos','3':'PIS/COFINS/CSLL retidos'})[tpRetPisCofins] || (tpRetPisCofins ? `Código ${tpRetPisCofins}` : '');
+      const cStat = nfseDirect(inf, 'cStat');
+      const chave = (inf.getAttribute('Id') || inf.getAttribute('id') || '').replace(/^NFS/i, '') || sourceFile.replace(/\.xml$/i, '').split('-')[0];
+      nfseData.push({
+        id: nfseData.length + 1,
+        tipoRegistro: 'nfse',
+        layout: 'nacional',
+        layoutLabel: 'NFS-e Nacional',
+        versaoLayout: doc.documentElement?.getAttribute('versao') || '',
+        chaveAcesso: chave,
+        sourceFile,
+        numero: nfseDirect(inf, 'nNFSe'),
+        codVer: '',
+        dtEmis: nfseFirst(nfseDirect(dps, 'dhEmi'), nfseDirect(inf, 'dhProc')),
+        comp: nfseDirect(dps, 'dCompet'),
+        dtEmisRps: nfseDirect(dps, 'dhEmi'),
+        regimeEspecial: regEsp,
+        optSim: opSN === '2' || opSN === '3',
+        incCul: false,
+        outrasInfo: extras.join(' | '),
+        idRps: { numero: nfseDirect(dps, 'nDPS'), serie: nfseDirect(dps, 'serie'), tipo: nfseDirect(dps, 'tpEmit') },
+        nfseSub: chaveSub ? { numero: chaveSub, codVer: '', chave: chaveSub } : null,
+        serv,
+        vals,
+        valorCredito: 0,
+        prest,
+        tom,
+        inter,
+        orgao: cLocEmi ? { codigoMunicipio: cLocEmi, uf: nfseUfFromMunicipio(cLocEmi) } : null,
+        constr: (codigoObra || inscImob) ? { obra: codigoObra || inscImob, art: '' } : null,
+        cancelInfo: null,
+        statusNacional: { codigo: cStat, descricao: nfseNationalStatus[cStat] || (cStat ? `Situação ${cStat}` : '') },
+        auditFiscal: {
+          telefonePrestador: prest.cont?.tel || '',
+          telefoneTomador: tom.cont?.tel || '',
+          beneficioMunicipal,
+          totalDeducoesReducoes: vals.deducoes,
+          calcBM,
+          contribuicaoPrevidenciariaRetida: vCp,
+          contribuicoesSociaisRetidas,
+          descricaoContribSociaisRetidas: retPisCofinsDesc,
+          pisDebitoProprio: nfseDirect(piscofins, 'vPis') !== '' ? vPis : null,
+          cofinsDebitoProprio: nfseDirect(piscofins, 'vCofins') !== '' ? vCofins : null,
+          descontoIncondicionado: nfseDirect(discounts, 'vDescIncond') !== '' ? vals.descontoIncond : null,
+          issqnRetido: issRetido ? vIss : null,
+          totalRetencoesFederais,
+          pisCofinsDebitoProprio: (tpRetPisCofins && (vPis + vCofins) > 0) ? (vPis + vCofins) : null,
+          estaduaisValor: aprox.estadualValor,
+          estaduaisPercentual: aprox.estadualPercentual,
+          municipaisValor: aprox.municipalValor,
+          municipaisPercentual: aprox.municipalPercentual,
+          federaisValor: aprox.federalValor,
+          federaisPercentual: aprox.federalPercentual,
+          informacoesComplementares: extras.join(' | '),
+          nbs: serv.nbs,
+          descricaoNbs: serv.descricaoNbs
+        },
+        national: {
+          nDFSe: nfseDirect(inf, 'nDFSe'),
+          ambiente: nfseDirect(dps, 'tpAmb'),
+          ambienteGerador: nfseDirect(inf, 'ambGer'),
+          tipoEmissao: nfseDirect(inf, 'tpEmis'),
+          cLocIncid,
+          localIncidencia: nfseDirect(inf, 'xLocIncid'),
+          tribISSQN: tribIss,
+          tribISSQNDescricao: tribIssDesc,
+          tpRetISSQN: tpRetIss,
+          tpRetISSQNDescricao: retIssDesc,
+          simplesDescricao: opSNDesc,
+          regimeEspecialDescricao: regEspDesc,
+          tpRetPisCofins,
+          tpRetPisCofinsDescricao: retPisCofinsDesc,
+          paisResultado,
+          paisPrestacao,
+          calcBM,
+          beneficioMunicipal,
+          aproximados: aprox,
+          contribuicoesSociaisRetidas,
+          totalRetencoesFederais
+        },
+        _xmlDoc: doc
+      });
+    }
+    function competenciaKey(raw) {
+      const m = String(raw || '').trim().match(/^(\d{4})-(\d{2})/);
+      return m ? `${m[1]}-${m[2]}` : '';
+    }
+    function updateCompetenciaFilter() {
+      const select = document.getElementById('competenciaFilter');
+      if (!select) return;
+      const current = select.value;
+      const comps = [...new Set(nfseData.filter(n => n.tipoRegistro === 'nfse').map(n => competenciaKey(n.comp)).filter(Boolean))].sort().reverse();
+      select.innerHTML = '<option value="">Todas</option>' + comps.map(c => {
+        const [ano, mes] = c.split('-');
+        return `<option value="${c}">${mes}/${ano}</option>`;
+      }).join('');
+      if (comps.includes(current)) select.value = current;
+    }
+    function nfseRetentionFlags(n) {
+      if (!n || n.tipoRegistro !== 'nfse') return {iss:false, federal:false, any:false};
+      const iss = !!n.vals?.issRetido || Number(n.vals?.issRetidoVal || 0) > 0;
+      let federal;
+      if (n.layout === 'nacional') {
+        const pcRetido = ['1','3'].includes(String(n.national?.tpRetPisCofins || '')) && (Number(n.vals?.pis || 0) + Number(n.vals?.cofins || 0) > 0);
+        federal = Number(n.vals?.retFederais || 0) > 0 || pcRetido;
+      } else {
+        federal = ['pis','cofins','inss','ir','csll','outrasRet'].some(k => Number(n.vals?.[k] || 0) > 0);
       }
+      return {iss, federal, any:iss || federal};
+    }
+    function nfseUniqueKey(item) {
+      if (!item || item.tipoRegistro !== 'nfse') return '';
+      return item.chaveAcesso
+        ? `chave:${item.chaveAcesso}`
+        : `nota:${item.layout || 'abrasf'}|${item.prest?.cnpj || item.prest?.cpf || ''}|${item.numero || ''}|${item.dtEmis || ''}`;
+    }
+    function nfseItemAlreadyLoaded(item) {
+      const key = nfseUniqueKey(item);
+      return !!key && nfseData.some(existing => nfseUniqueKey(existing) === key);
+    }
+    function refreshNfseImportUi() {
+      updateCompetenciaFilter();
+      updateStats();
+      renderNfseList();
+    }
+    function finalizeNfseImport() {
+      const seen = new Set();
+      nfseData = nfseData.filter(item => {
+        const key = nfseUniqueKey(item);
+        if (!key) return true;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      refreshNfseImportUi();
+    }
+
+    const xmlInput = document.getElementById('xmlInput');
+    const xmlDropZone = document.getElementById('xmlDropZone');
+    const xmlDropStatus = document.getElementById('xmlDropStatus');
+    async function loadXmlFiles(fileList) {
+      const files = Array.from(fileList || []).filter(file => /\.xml$/i.test(file.name) || /xml/i.test(file.type || ''));
+      if (!files.length) {
+        if (xmlDropStatus) xmlDropStatus.textContent = 'Nenhum XML válido selecionado';
+        return;
+      }
+      nfseData = [];
+      selectedNfse = null;
+      lastXmlDoc = null;
+      let nextProgressiveId = 1;
+      let firstNoteOpened = false;
+      let errors = 0;
+      const detail = document.getElementById('nfseDetail');
+      const empty = document.getElementById('emptyState');
+      detail.style.display = 'none';
+      empty.style.display = 'block';
+      refreshNfseImportUi();
+      if (xmlDropStatus) xmlDropStatus.textContent = `Lendo 0 de ${files.length} XML(s) • 0 NFS-e`;
+
+      const letBrowserPaint = () => new Promise(resolve => setTimeout(resolve, 8));
+
+      for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
+        const file = files[fileIndex];
+        try {
+          const insertionStart = nfseData.length;
+          parseXml(await file.text(), file.name, true);
+          const parsedItems = nfseData.splice(insertionStart);
+
+          for (const item of parsedItems) {
+            if (item.tipoRegistro === 'nfse' && nfseItemAlreadyLoaded(item)) continue;
+            item.id = nextProgressiveId++;
+            nfseData.push(item);
+            refreshNfseImportUi();
+
+            const notas = nfseData.filter(n => n.tipoRegistro === 'nfse').length;
+            if (xmlDropStatus) {
+              xmlDropStatus.textContent = `Lendo ${fileIndex + 1} de ${files.length} XML(s) • ${notas} NFS-e única(s)`;
+            }
+
+            if (!firstNoteOpened && item.tipoRegistro === 'nfse') {
+              selectedNfse = item;
+              if (item._xmlDoc) lastXmlDoc = item._xmlDoc;
+              renderNfseList();
+              renderNfseDetail(item);
+              firstNoteOpened = true;
+            }
+
+            await letBrowserPaint();
+          }
+        } catch (err) {
+          errors++;
+          console.error('Falha ao ler XML:', file.name, err);
+        }
+      }
+
+      finalizeNfseImport();
+      const notas = nfseData.filter(n => n.tipoRegistro === 'nfse').length;
+      if (xmlDropStatus) {
+        xmlDropStatus.textContent = `${files.length} XML(s) carregados • ${notas} NFS-e única(s)${errors ? ` • ${errors} erro(s)` : ''}`;
+      }
+      xmlInput.value = '';
+    }
+    xmlInput.addEventListener('change', e => loadXmlFiles(e.target.files));
+    xmlDropZone.addEventListener('click', () => xmlInput.click());
+    xmlDropZone.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); xmlInput.click(); }
     });
-    function parseXml(xmlString) {
+    ['dragenter','dragover'].forEach(type => xmlDropZone.addEventListener(type, e => {
+      e.preventDefault(); e.stopPropagation(); xmlDropZone.classList.add('dragover');
+    }));
+    ['dragleave','drop'].forEach(type => xmlDropZone.addEventListener(type, e => {
+      e.preventDefault(); e.stopPropagation(); xmlDropZone.classList.remove('dragover');
+    }));
+    xmlDropZone.addEventListener('drop', e => loadXmlFiles(e.dataTransfer.files));
+
+    function parseXml(xmlString, sourceFile = '', deferFinalize = false) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(xmlString, 'application/xml');
+      if (doc.getElementsByTagName('parsererror').length) {
+        console.warn('XML inválido ignorado:', sourceFile || '(sem nome)');
+        return;
+      }
       lastXmlDoc = doc;
-      const allNfse = nsAll(doc, 'Nfse').filter(el => nsAll(el, 'IdentificacaoNfse').length > 0);
+      if (nfseLocalDesc(doc, 'infNFSe')) {
+        parseNfseNacionalDoc(doc, sourceFile);
+        if (!deferFinalize) finalizeNfseImport();
+        return;
+      }
+      const classicNfse = nsAll(doc, 'Nfse').filter(el => nsAll(el, 'IdentificacaoNfse').length > 0);
+      const infNfse = nsAll(doc, 'InfNfse');
+      const allNfse = [...classicNfse, ...infNfse];
       allNfse.forEach((nfseEl, idx) => {
-        const idNf = nsAll(nfseEl, 'IdentificacaoNfse')[0];
+        const idNf = nsAll(nfseEl, 'IdentificacaoNfse')[0] || nfseEl;
         const numero = nsAll(idNf, 'Numero')[0]?.textContent || '';
         const codVer = nsAll(idNf, 'CodigoVerificacao')[0]?.textContent || '';
         const dtEmis = nsAll(nfseEl, 'DataEmissao')[0]?.textContent || '';
@@ -1660,7 +2170,7 @@
         const dtEmisRps = nsAll(nfseEl, 'DataEmissaoRps')[0]?.textContent || '';
         const regimeEspecial = nsAll(nfseEl, 'RegimeEspecialTributacao')[0]?.textContent || '';
         const optSim = nsAll(nfseEl, 'OptanteSimplesNacional')[0]?.textContent === '1';
-        const incCul = nsAll(nfseEl, 'IncetivadorCultural')[0]?.textContent === '1';
+        const incCul = (nsAll(nfseEl, 'IncetivadorCultural')[0] || nsAll(nfseEl, 'IncentivadorCultural')[0])?.textContent === '1';
         const outrasInfo = nsAll(nfseEl, 'OutrasInformacoes')[0]?.textContent || '';
         let idRpsNum = '', idRpsSerie = '', idRpsTipo = '';
         const idRpsEl = nsAll(nfseEl, 'IdentificacaoRps')[0];
@@ -1684,7 +2194,7 @@
           itemLista: nsAll(srvEl, 'ItemListaServico')[0]?.textContent || '',
           cnae: nsAll(srvEl, 'CodigoCnae')[0]?.textContent || '',
           codigoTrib: nsAll(srvEl, 'CodigoTributacaoMunicipio')[0]?.textContent || '',
-          municipio: nsAll(srvEl, 'MunicipioPrestacaoServico')[0]?.textContent || ''
+          municipio: (nsAll(srvEl, 'MunicipioPrestacaoServico')[0] || nsAll(srvEl, 'CodigoMunicipio')[0])?.textContent || ''
         };
         const vals = {
           valorServicos: getNum('ValorServicos'),
@@ -1718,8 +2228,8 @@
             rua: nsAll(enderecoEl, 'Endereco')[0]?.textContent || '',
             num: nsAll(enderecoEl, 'Numero')[0]?.textContent || '',
             bairro: nsAll(enderecoEl, 'Bairro')[0]?.textContent || '',
-            cidade: nsAll(enderecoEl, 'Cidade')[0]?.textContent || '',
-            uf: nsAll(enderecoEl, 'Estado')[0]?.textContent || '',
+            cidade: (nsAll(enderecoEl, 'Cidade')[0] || nsAll(enderecoEl, 'CodigoMunicipio')[0])?.textContent || '',
+            uf: (nsAll(enderecoEl, 'Estado')[0] || nsAll(enderecoEl, 'Uf')[0])?.textContent || '',
             cep: nsAll(enderecoEl, 'Cep')[0]?.textContent || ''
           },
           cont: {
@@ -1741,8 +2251,8 @@
             rua: nsAll(tEnd, 'Endereco')[0]?.textContent || '',
             num: nsAll(tEnd, 'Numero')[0]?.textContent || '',
             bairro: nsAll(tEnd, 'Bairro')[0]?.textContent || '',
-            cidade: nsAll(tEnd, 'Cidade')[0]?.textContent || '',
-            uf: nsAll(tEnd, 'Estado')[0]?.textContent || '',
+            cidade: (nsAll(tEnd, 'Cidade')[0] || nsAll(tEnd, 'CodigoMunicipio')[0])?.textContent || '',
+            uf: (nsAll(tEnd, 'Estado')[0] || nsAll(tEnd, 'Uf')[0])?.textContent || '',
             cep: nsAll(tEnd, 'Cep')[0]?.textContent || ''
           },
           cont: {
@@ -1778,24 +2288,47 @@
         let cancelInfo = null;
         let canEl = nsAll(nfseEl, 'Cancelamento')[0];
         if (!canEl) {
-          const wrapper = nfseEl.parentNode;
-          if (wrapper.localName === 'TcNfse') {
+          let wrapper = nfseEl.parentNode;
+          let hops = 0;
+          while (wrapper && wrapper.nodeType === 1 && !canEl && hops < 3) {
+            if (wrapper === doc.documentElement && allNfse.length > 1) break;
             canEl = nsAll(wrapper, 'Cancelamento')[0];
+            wrapper = wrapper.parentNode;
+            hops++;
           }
         }
         if (canEl) {
-          cancelInfo = {
-            data: nsAll(canEl, 'data')[0]?.textContent || '',
-            motivo: nsAll(canEl, 'Motivo')[0]?.textContent || ''
-          };
+          const sucesso = (nsAll(canEl, 'Sucesso')[0]?.textContent || '').trim().toLowerCase();
+          if (sucesso !== 'false') {
+            cancelInfo = {
+              data: (nsAll(canEl, 'DataHora')[0] || nsAll(canEl, 'DataCancelamento')[0] || nsAll(canEl, 'Data')[0] || nsAll(canEl, 'data')[0])?.textContent || '',
+              motivo: (nsAll(canEl, 'Motivo')[0] || nsAll(canEl, 'Justificativa')[0] || nsAll(canEl, 'xJust')[0])?.textContent || 'Cancelamento confirmado'
+            };
+          }
         }
         nfseData.push({
-          id: idx + 1,
+          id: nfseData.length + 1,
           tipoRegistro: 'nfse',
+          layout: 'abrasf',
+          layoutLabel: 'ABRASF / GINFES',
+          versaoLayout: doc.documentElement?.getAttribute('versao') || '',
+          sourceFile,
+          chaveAcesso: nsAll(nfseEl, 'ChaveAcesso')[0]?.textContent || '',
           numero, codVer, dtEmis, comp, dtEmisRps, regimeEspecial,
           optSim, incCul, outrasInfo,
           idRps: { numero: idRpsNum, serie: idRpsSerie, tipo: idRpsTipo },
-          nfseSub, serv, vals, valorCredito, prest, tom, inter, orgao, constr, cancelInfo
+          nfseSub, serv, vals, valorCredito, prest, tom, inter, orgao, constr, cancelInfo,
+          auditFiscal: {
+            telefonePrestador: prest.cont?.tel || '', telefoneTomador: tom.cont?.tel || '',
+            beneficioMunicipal: '', totalDeducoesReducoes: vals.deducoes, calcBM: '',
+            contribuicaoPrevidenciariaRetida: vals.inss, contribuicoesSociaisRetidas: vals.csll,
+            descricaoContribSociaisRetidas: '', pisDebitoProprio: null, cofinsDebitoProprio: null,
+            descontoIncondicionado: vals.descontoIncond, issqnRetido: vals.issRetido ? vals.issRetidoVal : null,
+            totalRetencoesFederais: vals.pis + vals.cofins + vals.inss + vals.ir + vals.csll + vals.outrasRet,
+            pisCofinsDebitoProprio: null, estaduaisValor: '', estaduaisPercentual: '', municipaisValor: '', municipaisPercentual: '',
+            informacoesComplementares: outrasInfo || '', nbs: '', descricaoNbs: ''
+          },
+          _xmlDoc: doc
         });
       });
       const msgs = nsAll(doc, 'tcMensagemRetornoLote');
@@ -1915,13 +2448,7 @@
           rpsSubstituido: rpsSub, serv, vals, prest, tom: tomRps, inter: interRps, constr: constrRps
         });
       });
-      nfseData = nfseData.filter((item, idx, arr) => {
-        if (item.tipoRegistro !== 'nfse') return true;
-        const first = arr.findIndex(x => x.tipoRegistro === 'nfse' && x.numero === item.numero);
-        return first === idx;
-      });
-      updateStats();
-      renderNfseList();
+      if (!deferFinalize) finalizeNfseImport();
     }
     function updateStats() {
       document.getElementById('totalNotas').textContent = nfseData.filter(n => n.tipoRegistro === 'nfse').length;
@@ -1975,43 +2502,33 @@
       list.innerHTML = '';
       const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
       const statusFilter = document.getElementById('statusFilter').value;
-      const periodFilter = document.getElementById('periodoFilter').value;
-      const now = new Date();
-      const isSameDay = (d1, d2) => d1.toDateString() === d2.toDateString();
-      const startOfWeek = (() => {
-        const dt = new Date(now);
-        const day = dt.getDay();
-        dt.setDate(dt.getDate() - ((day + 6) % 7));
-        dt.setHours(0, 0, 0, 0);
-        return dt;
-      })();
+      const competenciaFilter = document.getElementById('competenciaFilter').value;
+      const retencaoFilter = document.getElementById('retencaoFilter').value;
       const filtered = nfseData
         .filter(n => {
           const text = [
-            n.tipoRegistro === 'nfse' ? n.numero : '',
-            n.prest?.razao || '',
-            n.prest?.cnpj || '',
-            n.tom?.razao || '',
-            n.tom?.cnpj || '',
-            n.tom?.cpf || ''
+            n.tipoRegistro === 'nfse' ? n.numero : '', n.chaveAcesso || '', n.sourceFile || '',
+            n.prest?.razao || '', n.prest?.cnpj || '', n.tom?.razao || '', n.tom?.cnpj || '', n.tom?.cpf || '',
+            n.serv?.resumo || '', n.serv?.itemLista || '', n.serv?.codigoTrib || '', n.serv?.nbs || ''
           ].join(' ').toLowerCase();
           return text.includes(searchTerm);
         })
         .filter(n => {
-          if (!statusFilter) return true;
+          if (!statusFilter || n.tipoRegistro !== 'nfse') return true;
           const cancelled = !!n.cancelInfo;
-          return statusFilter === 'cancelada'
-            ? cancelled
-            : !cancelled;
+          return statusFilter === 'cancelada' ? cancelled : !cancelled;
         })
         .filter(n => {
-          if (!periodFilter) return true;
-          if (!n.dtEmis) return false;
-          const emis = new Date(n.dtEmis);
-          if (periodFilter === 'hoje') return isSameDay(emis, now);
-          if (periodFilter === 'semana') return emis >= startOfWeek;
-          if (periodFilter === 'mes') return emis.getMonth() === now.getMonth()
-            && emis.getFullYear() === now.getFullYear();
+          if (!competenciaFilter || n.tipoRegistro !== 'nfse') return true;
+          return competenciaKey(n.comp) === competenciaFilter;
+        })
+        .filter(n => {
+          if (!retencaoFilter || n.tipoRegistro !== 'nfse') return true;
+          const f = nfseRetentionFlags(n);
+          if (retencaoFilter === 'com') return f.any;
+          if (retencaoFilter === 'iss') return f.iss;
+          if (retencaoFilter === 'federal') return f.federal;
+          if (retencaoFilter === 'sem') return !f.any;
           return true;
         });
       filtered.forEach(n => {
@@ -2056,6 +2573,7 @@
           <div class="nfse-badges">
             ${n.cancelInfo ? '<span class="badge badge-cancelled">CANCELADA</span>' : ''}
             ${n.vals.issRetido ? '<span class="badge badge-iss">ISS RETIDO</span>' : ''}
+            ${nfseRetentionFlags(n).federal ? '<span class="badge badge-iss">RET. FEDERAL</span>' : ''}
             ${n.optSim ? '<span class="badge badge-simples">SIMPLES</span>' : ''}
             ${n.inter ? '<span class="badge badge-extra">INTERMEDIÁRIO</span>' : ''}
           </div>`;
@@ -2067,8 +2585,15 @@
     }
     function selectNfse(n) {
       selectedNfse = n;
+      if (n?._xmlDoc) lastXmlDoc = n._xmlDoc;
       renderNfseList();
       renderNfseDetail(n);
+      requestAnimationFrame(() => {
+        const detail = document.getElementById('nfseDetail');
+        if (!detail) return;
+        detail.scrollTop = 0;
+        detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     }
     function toggleSection(id) {
       const c = document.getElementById(id + '-content');
@@ -2091,12 +2616,27 @@
             </div>
             </div>`;
     }
+    function escapeNfseHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
     function createInfoItem(label, val) {
+      const shown = (val === 0 || val === '0') ? String(val) : (val || '—');
       return `
-        <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f1f5f9">
-          <span style="color:#64748b;font-size:0.875rem">${label}:</span>
-          <span style="font-weight:500">${val || '—'}</span>
+        <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.5rem 0;border-bottom:1px solid #f1f5f9">
+          <span style="color:#64748b;font-size:0.875rem;flex:0 0 42%">${escapeNfseHtml(label)}:</span>
+          <span style="font-weight:500;text-align:right;white-space:pre-wrap;overflow-wrap:anywhere">${escapeNfseHtml(shown)}</span>
         </div>`;
+    }
+    function optionalCurrency(v) {
+      return v === null || v === undefined || v === '' ? '—' : formatCurrency(Number(v) || 0);
+    }
+    function approximateTaxLabel(value, percent) {
+      if (value !== null && value !== undefined && value !== '') return formatCurrency(Number(value) || 0);
+      if (percent !== null && percent !== undefined && percent !== '') return `${Number(percent).toFixed(2)}%`;
+      return '—';
+    }
+    function hasNfseFiscalValue(...values) {
+      return values.some(v => v !== null && v !== undefined && String(v).trim() !== '');
     }
     function renderNfseDetail(n) {
       const empty = document.getElementById('emptyState');
@@ -2161,13 +2701,38 @@
         <div class="quick-stats">
           <div class="quick-stat"><div class="quick-stat-value">${formatCurrency(n.vals.valorServicos)}</div><div class="quick-stat-label">Valor Bruto</div></div>
           <div class="quick-stat"><div class="quick-stat-value" style="color:#dc2626">${formatCurrency(n.vals.valorIss)}</div><div class="quick-stat-label">ISS</div></div>
-          <div class="quick-stat"><div class="quick-stat-value" style="color:#d97706">${(n.vals.aliquota).toFixed(2)}%</div><div class="quick-stat-label">Alíquota</div></div>
+          <div class="quick-stat"><div class="quick-stat-value" style="color:#d97706">${(n.vals.aliquota || 0).toFixed(2)}%</div><div class="quick-stat-label">Alíquota</div></div>
           <div class="quick-stat"><div class="quick-stat-value">${formatCompetencia(n.comp)}</div><div class="quick-stat-label">Competência</div></div>
         </div>
         <div class="sections">
+          ${n.layout === 'nacional' ? `
+          <div class="section">
+            <button class="section-header" onclick="toggleSection('padraoNacional')">
+              <div class="section-title"><i data-lucide="badge-check" size="18"></i><span>NFS-e Padrão Nacional</span></div>
+              <i data-lucide="chevron-right" size="18" id="padraoNacional-icon"></i>
+            </button>
+            <div class="section-content" id="padraoNacional-content">
+              ${createInfoItem('Situação', n.statusNacional?.descricao || n.statusNacional?.codigo)}
+              ${createInfoItem('Código da Situação', n.statusNacional?.codigo)}
+              ${createInfoItem('Chave de Acesso', n.chaveAcesso)}
+              ${createInfoItem('Nº DFSe', n.national?.nDFSe)}
+              ${createInfoItem('Arquivo', n.sourceFile)}
+              ${createInfoItem('Ambiente', n.national?.ambiente === '1' ? 'Produção' : (n.national?.ambiente === '2' ? 'Homologação' : n.national?.ambiente))}
+              ${createInfoItem('Local de Incidência', n.national?.localIncidencia || n.national?.cLocIncid)}
+              ${createInfoItem('Simples Nacional', n.national?.simplesDescricao)}
+              ${createInfoItem('Regime Especial', n.national?.regimeEspecialDescricao)}
+              ${createInfoItem('Tributação ISSQN', n.national?.tribISSQNDescricao)}
+              ${createInfoItem('Retenção ISSQN', n.national?.tpRetISSQNDescricao)}
+              ${n.national?.paisPrestacao ? createInfoItem('País da Prestação', n.national.paisPrestacao) : ''}
+              ${n.national?.paisResultado ? createInfoItem('País Resultado da Prestação', n.national.paisResultado) : ''}
+              ${n.national?.beneficioMunicipal ? createInfoItem('Benefício Municipal', `Código ${n.national.beneficioMunicipal}`) : ''}
+              ${n.national?.calcBM ? createInfoItem('Cálculo do BM', n.national.calcBM) : ''}
+              ${n.national?.tpRetPisCofinsDescricao ? createInfoItem('Retenção PIS/COFINS/CSLL', n.national.tpRetPisCofinsDescricao) : ''}
+            </div>
+          </div>` : ''}
           <div class="section">
             <button class="section-header" onclick="toggleSection('valores')">
-              <div class="section-title"><i data-lucide="calculator" size="18"></i><span>Valores & Tributos</span><span class="badge badge-extra">Detalhado</span></div>
+              <div class="section-title"><i data-lucide="calculator" size="18"></i><span>Valores & Tributos</span></div>
               <i data-lucide="chevron-down" size="18" id="valores-icon"></i>
             </button>
             <div class="section-content expanded" id="valores-content">
@@ -2175,7 +2740,7 @@
                 <div>
                   ${createValueItem('Serviços', n.vals.valorServicos, true)}
                   ${createValueItem('Base Cálculo', n.vals.baseCalculo, true)}
-                  ${createValueItem('Alíquota ISS', (n.vals.aliquota).toFixed(2) + '%')}
+                  ${createValueItem('Alíquota ISS', (n.vals.aliquota || 0).toFixed(2) + '%')}
                   ${createValueItem('ISS devidos', n.vals.valorIss, true)}
                   ${createValueItem('ISS Retido', n.vals.issRetidoVal, true)}
                   ${createValueItem('Líquido', n.vals.valorLiquido, true, 'font-weight:700;border-top:1px solid #e2e8f0;padding-top:0.5rem;')}
@@ -2184,6 +2749,11 @@
                   ${['deducoes', 'pis', 'cofins', 'inss', 'ir', 'csll', 'outrasRet', 'descontoCond', 'descontoIncond']
           .map(k => createValueItem(k.charAt(0).toUpperCase() + k.slice(1), n.vals[k], true))
           .join('')}
+                  ${n.layout === 'nacional' ? createValueItem('Contrib. Sociais Retidas', n.vals.contribuicoesSociaisRetidas || 0, true) : ''}
+                  ${n.layout === 'nacional' ? createValueItem('Total Retenções Federais', n.vals.retFederais || 0, true) : ''}
+                  ${n.layout === 'nacional' && hasNfseFiscalValue(n.auditFiscal?.federaisValor, n.auditFiscal?.federaisPercentual) ? createValueItem('Tributos aprox. Federais', approximateTaxLabel(n.auditFiscal?.federaisValor, n.auditFiscal?.federaisPercentual)) : ''}
+                  ${n.layout === 'nacional' && hasNfseFiscalValue(n.auditFiscal?.estaduaisValor, n.auditFiscal?.estaduaisPercentual) ? createValueItem('Tributos aprox. Estaduais', approximateTaxLabel(n.auditFiscal?.estaduaisValor, n.auditFiscal?.estaduaisPercentual)) : ''}
+                  ${n.layout === 'nacional' && hasNfseFiscalValue(n.auditFiscal?.municipaisValor, n.auditFiscal?.municipaisPercentual) ? createValueItem('Tributos aprox. Municipais', approximateTaxLabel(n.auditFiscal?.municipaisValor, n.auditFiscal?.municipaisPercentual)) : ''}
                 </div>
               </div>
             </div>
@@ -2199,7 +2769,7 @@
               ${createInfoItem('Inscr. Municipal', n.prest.inscrMun)}
               ${createInfoItem('Endereço', `${n.prest.end.rua}, ${n.prest.end.num}`)}
               ${createInfoItem('Bairro', n.prest.end.bairro)}
-              ${createInfoItem('Cidade/UF', `${n.prest.end.cidade}/${n.prest.end.uf}`)}
+              ${createInfoItem('Cidade/UF', nfseMunicipioLabel(n.prest.end.cidade, n.prest.end.uf))}
               ${createInfoItem('CEP', n.prest.end.cep)}
               ${createInfoItem('Telefone', n.prest.cont.tel)}
               ${createInfoItem('Email', n.prest.cont.email)}
@@ -2216,8 +2786,7 @@
               ${createInfoItem('Inscr. Municipal', n.tom.inscrMun)}
               ${createInfoItem('Endereço', `${n.tom.end.rua}, ${n.tom.end.num}`)}
               ${createInfoItem('Bairro', n.tom.end.bairro)}
-              ${createInfoItem('Cidade', n.tom.end.cidade)}
-              ${createInfoItem('UF', n.tom.end.uf)}
+              ${createInfoItem('Cidade/UF', nfseMunicipioLabel(n.tom.end.cidade, n.tom.end.uf))}
               ${createInfoItem('CEP', n.tom.end.cep)}
               ${createInfoItem('Telefone', n.tom.cont.tel)}
               ${createInfoItem('Email', n.tom.cont.email)}
@@ -2255,10 +2824,13 @@
               <div style="background:#dbeafe;padding:1rem;border-radius:0.375rem;margin-bottom:1rem">
                 <p style="color:#1e40af">${n.serv.resumo}</p>
               </div>
-              ${createInfoItem('Item Lista', n.serv.itemLista)}
-              ${createInfoItem('Código CNAE', `${n.serv.itemLista.slice(0, 2)}.${n.serv.itemLista.slice(2)} / ${n.serv.codigoTrib}`)}
-              ${createInfoItem('Cod. Trib.', n.serv.codigoTrib)}
-              ${createInfoItem('Município', n.serv.municipio)}
+              ${createInfoItem(n.layout === 'nacional' ? 'Código Tributação Nacional' : 'Item Lista', n.serv.itemLista)}
+              ${n.serv.descricaoTribNac ? createInfoItem('Descrição Tributação Nacional', n.serv.descricaoTribNac) : ''}
+              ${createInfoItem('Código Tributação Municipal', n.serv.codigoTrib)}
+              ${n.serv.descricaoTribMun ? createInfoItem('Descrição Tributação Municipal', n.serv.descricaoTribMun) : ''}
+              ${n.serv.cnae ? createInfoItem(n.layout === 'nacional' ? 'NBS' : 'Código CNAE', n.serv.cnae) : ''}
+              ${n.layout === 'nacional' && n.auditFiscal?.descricaoNbs ? createInfoItem('Descrição NBS', n.auditFiscal.descricaoNbs) : ''}
+              ${createInfoItem(n.layout === 'nacional' ? 'Local da Prestação' : 'Município', nfseMunicipioLabel(n.serv.localPrestacao || n.serv.municipio))}
             </div>
           </div>
           ${n.nfseSub ? `
@@ -2268,15 +2840,15 @@
               <i data-lucide="chevron-right" size="18" id="substituida-icon"></i>
             </button>
             <div class="section-content" id="substituida-content">
-              ${createInfoItem('Número', n.nfseSub.numero)}
-              ${createInfoItem('Verificação', n.nfseSub.codVer)}
-              ${createInfoItem('Emitida em (RPS)', formatDateOnly(n.dtEmisRps))}
+              ${createInfoItem(n.nfseSub.chave ? 'Chave' : 'Número', n.nfseSub.chave || n.nfseSub.numero)}
+              ${n.nfseSub.codVer ? createInfoItem('Verificação', n.nfseSub.codVer) : ''}
+              ${createInfoItem('Emitida em (RPS/DPS)', formatDateOnly(n.dtEmisRps))}
             </div>
           </div>`: ''}
           ${n.outrasInfo ? `
           <div class="section">
             <button class="section-header" onclick="toggleSection('outrasInfo')">
-              <div class="section-title"><i data-lucide="info" size="18"></i><span>Outras Informações</span></div>
+              <div class="section-title"><i data-lucide="info" size="18"></i><span>Informações Complementares</span></div>
               <i data-lucide="chevron-right" size="18" id="outrasInfo-icon"></i>
             </button>
             <div class="section-content" id="outrasInfo-content"><p>${n.outrasInfo}</p></div>
@@ -2304,8 +2876,9 @@
       lucide.createIcons();
     }
     document.getElementById('searchInput').addEventListener('input', renderNfseList);
-    document.getElementById('periodoFilter').addEventListener('change', renderNfseList);
+    document.getElementById('competenciaFilter').addEventListener('change', renderNfseList);
     document.getElementById('statusFilter').addEventListener('change', renderNfseList);
+    document.getElementById('retencaoFilter').addEventListener('change', renderNfseList);
     /* ========= boot ========= */
     loadUFs();
     lucide.createIcons();
