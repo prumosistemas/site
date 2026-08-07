@@ -1034,7 +1034,7 @@
     #nfse .detail-header {
       border-radius: 0.85rem 0.85rem 0 0;
     }
-    #appTabs #nfse-tab {
+    #appTabs .nav-link {
       position: relative;
       z-index: 2;
       border: 1px solid #dee2e6 !important;
@@ -1042,8 +1042,14 @@
       border-radius: 0.6rem !important;
       background: #fff;
     }
-    #appTabs #nfse-tab.active {
+    #appTabs .nav-link:hover,
+    #appTabs .nav-link:focus {
+      border-color: #dee2e6 !important;
+    }
+    #appTabs .nav-link.active {
+      border: 1px solid #dee2e6 !important;
       border-bottom-color: #dee2e6 !important;
+      border-radius: 0.6rem !important;
       background: #fff !important;
     }
 </style>
